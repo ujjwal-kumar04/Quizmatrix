@@ -18,6 +18,8 @@ import Drafts from './pages/Drafts.jsx';
 import ExamPreview from './pages/ExamPreview.jsx';
 import DetailedResult from './pages/DetailedResult.jsx';
 import ExamResults from './pages/ExamResults.jsx';
+import Exams from './pages/Exam.jsx';
+import PublishedExams from './pages/PublisedExam.jsx';
 import ForumList from './pages/ForumList.jsx';
 import ForumThread from './pages/ForumThread.jsx';
 import LandingPage from './pages/LandingPage.jsx';
@@ -214,6 +216,19 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+        path="/results"
+        element={
+          <ProtectedRoute requiredRole="teacher">
+            <Exams />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/published-exams" element={
+        <ProtectedRoute requiredRole="teacher">
+          <PublishedExams />
+        </ProtectedRoute>
+      } />  
 
         <Route 
           path="/exam/:examId" 
@@ -339,12 +354,15 @@ const AppContent = () => {
         <Route path="/exam-results" element={<ProtectedRoute><ExamResults /></ProtectedRoute>} />
         <Route path="/detailed-result/:resultId" element={<ProtectedRoute><DetailedResult /></ProtectedRoute>} />
 
-        {/* Mock Test Routes */}
-        <Route path="/mock-test" element={<ProtectedRoute><MockTestHome /></ProtectedRoute>} />
-        <Route path="/mock-test/:category" element={<ProtectedRoute><CategoryPage /></ProtectedRoute>} />
-        <Route path="/mock-test/:category/:topic" element={<ProtectedRoute><QuestionPage /></ProtectedRoute>} />
-        <Route path="/mock-test/:category/:topic/test" element={<ProtectedRoute><TestMode /></ProtectedRoute>} />
-        <Route path="/mock-test/result" element={<ProtectedRoute><TestResult /></ProtectedRoute>} />
+      
+  <Route path="/mock-test" element={<MockTestHome />} />
+  
+  
+  <Route path="/mock-test/result" element={<TestResult />} />
+  
+  <Route path="/mock-test/:category" element={<CategoryPage />} />
+  <Route path="/mock-test/:category/:topic" element={<QuestionPage />} />
+  <Route path="/mock-test/:category/:topic/test" element={<TestMode />} />
 
         {/* Teacher specific routes */}
         <Route path="/teacher-dashboard" element={<ProtectedRoute requiredRole="teacher"><TeacherDashboard /></ProtectedRoute>}></Route>

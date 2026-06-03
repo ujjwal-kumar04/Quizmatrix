@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const StudyMaterial = require('../models/StudyMaterial');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
@@ -9,20 +9,30 @@ const requireAuth = require('../utils/requireAuth');
 
 const router = express.Router();
 
-const uploadsDir = path.join(__dirname, '..', 'uploads', 'study-materials');
-fs.mkdirSync(uploadsDir, { recursive: true });
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
-  filename: (req, file, cb) => {
-    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
-    cb(null, `${Date.now()}-${safeName}`);
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'study_materials', 
+    resource_type: 'auto',      
+    public_id: (req, file) => {
+      const safeName = file.originalname
+        .replace(/[^a-zA-Z0-9._-]/g, '_')
+        .replace(/\.[^/.]+$/, ""); 
+      return `${Date.now()}-${safeName}`;
+    }
   },
 });
 
 const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
+  storage: storage,
+  limits: { fileSize: 1 * 1024 * 1024 }, 
 });
 
 const populateTeacher = { path: 'teacher', select: 'name email role profileImage department rollNumber className semester college branch section' };
@@ -33,11 +43,9 @@ const normalizeTags = (tags) => {
   if (Array.isArray(tags)) {
     return tags.map((tag) => String(tag).trim()).filter(Boolean);
   }
-
   if (typeof tags === 'string') {
     return tags.split(',').map((tag) => tag.trim()).filter(Boolean);
   }
-
   return [];
 };
 
@@ -114,11 +122,11 @@ const notifyStudents = async ({ title, message, type = 'study-material', metadat
 
 router.post('/upload', requireAuth, upload.single('file'), async (req, res) => {
   try {
-    if (!req.file) {
+    if (!req.file || !req.file.path) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    const fileUrl = `/uploads/study-materials/${req.file.filename}`;
+    const fileUrl = req.file.path; 
     return res.json({ success: true, fileUrl });
   } catch (error) {
     console.error('Upload study material file error:', error);
@@ -284,40 +292,6 @@ router.delete('/:id', requireAuth, async (req, res) => {
   }
 });
 
-const streamExternalFile = async (fileUrl, res) => {
-  const response = await fetch(fileUrl);
-  if (!response.ok || !response.body) {
-    throw new Error('Could not fetch external file');
-  }
-
-  const contentType = response.headers.get('content-type') || 'application/octet-stream';
-  res.setHeader('Content-Type', contentType);
-
-  const contentDisposition = response.headers.get('content-disposition');
-  if (contentDisposition) {
-    res.setHeader('Content-Disposition', contentDisposition);
-  }
-
-  if (!contentDisposition) {
-    const fileName = path.basename(new URL(fileUrl).pathname) || 'download';
-    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-  }
-
-  const reader = response.body.getReader();
-  const writeChunk = async () => {
-    const { done, value } = await reader.read();
-    if (done) {
-      res.end();
-      return;
-    }
-
-    res.write(Buffer.from(value));
-    await writeChunk();
-  };
-
-  await writeChunk();
-};
-
 router.get('/download/:id', requireAuth, async (req, res) => {
   try {
     const material = await StudyMaterial.findById(req.params.id).populate(populateTeacher);
@@ -333,25 +307,7 @@ router.get('/download/:id', requireAuth, async (req, res) => {
       return res.status(404).json({ message: 'File not available', fileNotAvailable: true });
     }
 
-    if (material.fileUrl.startsWith('/uploads/')) {
-      const absolutePath = path.join(__dirname, '..', material.fileUrl.replace(/^\/+/, ''));
-      if (!fs.existsSync(absolutePath)) {
-        return res.status(404).json({ message: 'File not found', fileNotAvailable: true });
-      }
-
-      return res.download(absolutePath, path.basename(absolutePath));
-    }
-
-    if (/^https?:\/\//i.test(material.fileUrl)) {
-      return streamExternalFile(material.fileUrl, res);
-    }
-
-    const possiblePath = path.join(__dirname, '..', material.fileUrl.replace(/^\/+/, ''));
-    if (fs.existsSync(possiblePath)) {
-      return res.download(possiblePath, path.basename(possiblePath));
-    }
-
-    return res.status(404).json({ message: 'File not found', fileNotAvailable: true });
+    return res.redirect(material.fileUrl);
   } catch (error) {
     console.error('Download study material error:', error);
     return res.status(500).json({ message: 'Failed to download file' });

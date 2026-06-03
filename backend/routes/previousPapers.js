@@ -1,31 +1,43 @@
 const express = require('express');
 const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const PreviousPaper = require('../models/PreviousPaper');
 const requireAuth = require('../utils/requireAuth');
 
 const router = express.Router();
 
-const uploadsDir = path.join(__dirname, '..', 'uploads', 'previous-papers');
-fs.mkdirSync(uploadsDir, { recursive: true });
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
-  filename: (req, file, cb) => {
-    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
-    cb(null, `${Date.now()}-${safeName}`);
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'previous_papers', 
+    resource_type: 'raw',     
+    public_id: (req, file) => {
+
+      const safeName = file.originalname
+        .replace(/[^a-zA-Z0-9._-]/g, '_')
+        .replace(/\.[^/.]+$/, ""); 
+      return `${Date.now()}-${safeName}`;
+    }
   },
 });
 
 const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
+  storage: storage,
+  limits: { fileSize: 1 * 1024 * 1024 }, 
 });
 
 const populateTeacher = { path: 'teacher', select: 'name email role profileImage department rollNumber class semester' };
 
 const buildPaper = (paper) => paper;
+
 
 router.get('/filters', requireAuth, async (req, res) => {
   try {
@@ -88,13 +100,14 @@ router.get('/', requireAuth, async (req, res) => {
   }
 });
 
+
 router.post('/upload', requireAuth, upload.single('file'), async (req, res) => {
   try {
     if (req.user.role !== 'teacher') {
       return res.status(403).json({ message: 'Only teachers can upload papers' });
     }
 
-    if (!req.file) {
+    if (!req.file || !req.file.path) {
       return res.status(400).json({ message: 'PDF file is required' });
     }
 
@@ -113,7 +126,7 @@ router.post('/upload', requireAuth, upload.single('file'), async (req, res) => {
       college: String(college).trim(),
       branch: String(branch).trim(),
       semester: String(semester).trim(),
-      fileUrl: `/uploads/previous-papers/${req.file.filename}`,
+      fileUrl: req.file.path, 
       teacher: req.userId,
     });
 
@@ -124,9 +137,10 @@ router.post('/upload', requireAuth, upload.single('file'), async (req, res) => {
   }
 });
 
+
 router.get('/download/:id', requireAuth, async (req, res) => {
   try {
-    const paper = await PreviousPaper.findById(req.params.id).populate(populateTeacher);
+    const paper = await PreviousPaper.findById(req.params.id);
     if (!paper) {
       return res.status(404).json({ message: 'Previous paper not found' });
     }
@@ -135,26 +149,17 @@ router.get('/download/:id', requireAuth, async (req, res) => {
       return res.status(404).json({ message: 'File not available', fileNotAvailable: true });
     }
 
-    let absolutePath = null;
-    if (paper.fileUrl.startsWith('/uploads/')) {
-      absolutePath = path.join(__dirname, '..', paper.fileUrl.replace(/^\/+/, ''));
-    } else {
-      absolutePath = path.join(__dirname, '..', paper.fileUrl.replace(/^\/+/, ''));
-    }
-
-    if (!fs.existsSync(absolutePath)) {
-      return res.status(404).json({ message: 'File not found', fileNotAvailable: true });
-    }
-
+    एं
     paper.downloadCount += 1;
     await paper.save();
 
-    return res.download(absolutePath, path.basename(absolutePath));
+    return res.redirect(paper.fileUrl);
   } catch (error) {
     console.error('Download previous paper error:', error);
     return res.status(500).json({ message: 'Failed to download file' });
   }
 });
+
 
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
@@ -162,10 +167,12 @@ router.delete('/:id', requireAuth, async (req, res) => {
       return res.status(403).json({ message: 'Only teachers can delete papers' });
     }
 
-    const paper = await PreviousPaper.findOneAndDelete({ _id: req.params.id, teacher: req.userId });
+    const paper = await PreviousPaper.findOne({ _id: req.params.id, teacher: req.userId });
     if (!paper) {
       return res.status(404).json({ message: 'Previous paper not found' });
     }
+
+    await PreviousPaper.findByIdAndDelete(paper._id);
 
     return res.json({ success: true, message: 'Paper deleted successfully' });
   } catch (error) {

@@ -11,6 +11,4 @@ const DEFAULT_BACKEND_URL = isLocalHost ? 'http://localhost:5001' : 'https://qui
 export const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || DEFAULT_BACKEND_URL;
 export const API_BASE_URL = process.env.REACT_APP_API_URL || `${BACKEND_URL}/api`;
 
-// For local development, you can create a .env.local file with:
-// REACT_APP_API_URL=http://localhost:5001/api
-// REACT_APP_BACKEND_URL=http://localhost:5001
+

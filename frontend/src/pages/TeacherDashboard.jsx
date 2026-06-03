@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
-import AsyncSelect from 'react-select/async';
 import Loading from '../components/Loading.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { formatRelativeTime, getExamStatus } from '../utils/helpers';
@@ -20,7 +19,6 @@ const TeacherDashboard = () => {
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [assigningExam, setAssigningExam] = useState(null);
   const [selectedOptions, setSelectedOptions] = useState([]);
-  const [assignLoading, setAssignLoading] = useState(false);
 
   useEffect(() => {
     fetchExams();
@@ -55,87 +53,14 @@ const TeacherDashboard = () => {
     toast.success('Exam key copied to clipboard!');
   };
 
-  const openAssignModal = (exam) => {
-    setAssigningExam(exam);
-    setAssignModalOpen(true);
-    setSelectedOptions([]);
-  };
-
   const closeAssignModal = () => {
     setAssignModalOpen(false);
     setAssigningExam(null);
     setSelectedOptions([]);
   };
 
-  const loadStudentOptions = async (inputValue) => {
-    try {
-      const res = await api.get('/exams/students', {
-        params: {
-          query: inputValue || '',
-          limit: 50,
-        },
-      });
-
-      const students = res.data.students || [];
-      return students.map((student) => ({
-        value: student._id,
-        label: `${student.name} • ${student.email}${student.section ? ` • ${student.section}` : ''}`,
-      }));
-    } catch (error) {
-      return [];
-    }
-  };
-
-  const assignStudentsToExam = async () => {
-    if (!assigningExam) return;
-
-    const ids = selectedOptions.map((option) => option.value);
-    if (ids.length === 0) {
-      toast.error('Select at least one student');
-      return;
-    }
-
-    setAssignLoading(true);
-    try {
-      const res = await api.post(`/exams/${assigningExam._id}/assign`, { studentIds: ids });
-      toast.success(res.data.message || 'Students assigned');
-      fetchExams();
-      closeAssignModal();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to assign students');
-    } finally {
-      setAssignLoading(false);
-    }
-  };
-
-  const publishExam = async (examId) => {
-    try {
-      const res = await api.post(`/exams/${examId}/publish`);
-      toast.success(res.data.message || 'Exam published');
-      fetchExams();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to publish exam');
-    }
-  };
-
-  const duplicateExam = async (examId) => {
-    try {
-      const res = await api.post(`/exams/${examId}/duplicate`);
-      toast.success(res.data.message || 'Exam duplicated');
-      fetchExams();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to duplicate exam');
-    }
-  };
-
   if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a]">
-        <div className="max-w-7xl mx-auto py-8">
-          <Loading text="Loading dashboard..." />
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   const totalExams = exams.length;
@@ -145,36 +70,16 @@ const TeacherDashboard = () => {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a]">
       <div className="flex min-h-screen">
-        <aside className="hidden md:flex md:w-64 md:flex-col bg-white dark:bg-[#0b1220] border-r border-gray-200 dark:border-slate-800">
-          <div className="p-5 border-b border-gray-200 dark:border-slate-800">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Teacher Dashboard</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{user?.name}</p>
-          </div>
-          <nav className="p-3 space-y-1 flex-1">
-            <Link to="/create-exam" className="block px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-900 text-gray-700 dark:text-gray-200">Create Exam</Link>
-            <Link to="/drafts" className="block px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-900 text-gray-700 dark:text-gray-200">Draft Exams</Link>
-            <Link to="/published" className="block px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-900 text-gray-700 dark:text-gray-200">Published Exams</Link>
-            <Link to="/students" className="block px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-900 text-gray-700 dark:text-gray-200">Student Management</Link>
-            <Link to="/results" className="block px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-900 text-gray-700 dark:text-gray-200">Results & Analytics</Link>
-            <Link to="/profile" className="block px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-900 text-gray-700 dark:text-gray-200">Profile Settings</Link>
-          </nav>
-        </aside>
+       
 
+        {/* Main Content */}
         <main className="flex-1 px-4 py-4 md:px-6 md:py-6">
-          <div className="md:hidden bg-white dark:bg-[#0b1220] rounded-xl p-4 mb-4 border border-gray-200 dark:border-slate-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Teacher Dashboard</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{user?.name}</p>
-              </div>
-            </div>
-          </div>
-
           <div className="mb-6 sm:mb-8">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Welcome back, {user?.name}</h1>
-            <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-400">Manage exams, draft work, and student access from one place.</p>
+            <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-400">Manage exams, study materials, papers, and student access.</p>
           </div>
 
+          {/* Stats Section */}
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
             <div className="bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-slate-700 rounded-xl p-4">
               <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Total Exams</p>
@@ -184,10 +89,13 @@ const TeacherDashboard = () => {
               <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Draft Exams</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">{draftCount}</p>
             </div>
-            <div className="bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-slate-700 rounded-xl p-4">
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Published Exams</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">{publishedCount}</p>
-            </div>
+            <button
+  onClick={() => navigate('/published-exams')}
+  className="bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-slate-700 rounded-xl p-4 text-left w-full hover:border-blue-500 transition-all cursor-pointer"
+>
+  <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Published Exams</p>
+  <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">{publishedCount}</p>
+</button>
             <div className="bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-slate-700 rounded-xl p-4">
               <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Total Students</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">{stats.totalStudents}</p>
@@ -198,7 +106,8 @@ const TeacherDashboard = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6">
+          {/* Grid Quick Action Buttons */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-6">
             <button
               onClick={() => navigate('/create-exam')}
               className="bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-slate-700 rounded-xl p-4 hover:border-blue-500 transition-all text-left"
@@ -211,6 +120,35 @@ const TeacherDashboard = () => {
                 </div>
               </div>
             </button>
+
+            {/* Added: Upload Study Material Quick Button */}
+            <button
+              onClick={() => navigate('/study-materials')}
+              className="bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-slate-700 rounded-xl p-4 hover:border-blue-500 transition-all text-left"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">📚</span>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white">Study Material</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Upload study documents</p>
+                </div>
+              </div>
+            </button>
+
+            {/* Added: Previous Year Paper Quick Button */}
+            <button
+              onClick={() => navigate('/previous-papers')}
+              className="bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-slate-700 rounded-xl p-4 hover:border-blue-500 transition-all text-left"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">📄</span>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white">Previous Papers</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Upload past year papers</p>
+                </div>
+              </div>
+            </button>
+
             <button
               onClick={() => navigate('/drafts')}
               className="bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-slate-700 rounded-xl p-4 hover:border-blue-500 transition-all text-left"
@@ -223,6 +161,7 @@ const TeacherDashboard = () => {
                 </div>
               </div>
             </button>
+
             <button
               onClick={() => navigate('/results')}
               className="bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-slate-700 rounded-xl p-4 hover:border-blue-500 transition-all text-left"
@@ -237,6 +176,7 @@ const TeacherDashboard = () => {
             </button>
           </div>
 
+          {/* Recent Exams List */}
           <div>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Recent Exams</h2>
@@ -287,8 +227,6 @@ const TeacherDashboard = () => {
               </div>
             )}
           </div>
-
-          
         </main>
       </div>
     </div>

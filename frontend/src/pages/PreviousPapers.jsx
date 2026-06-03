@@ -314,28 +314,7 @@ const PreviousPapers = () => {
           )}
         </div>
 
-        {/* Profile completion warning for students */}
-        {user?.role === 'student' && (!user?.country || !user?.state || !user?.college || !user?.branch || !user?.semester) && (
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
-            <div className="flex items-start gap-2 sm:gap-3">
-              <span className="text-yellow-600 dark:text-yellow-400 text-lg sm:text-xl flex-shrink-0">⚠️</span>
-              <div>
-                <p className="text-xs sm:text-sm md:text-base text-yellow-800 dark:text-yellow-300 font-medium">
-                  Complete your profile for better results!
-                </p>
-                <p className="text-[10px] sm:text-xs md:text-sm text-yellow-700 dark:text-yellow-400 mt-1">
-                  Add your Country, State, College, Branch, and Semester in your profile to see relevant papers automatically.
-                </p>
-                <Link 
-                  to="/profile" 
-                  className="inline-block mt-1.5 sm:mt-2 text-[10px] sm:text-xs md:text-sm text-yellow-900 dark:text-yellow-200 underline hover:no-underline font-medium touch-manipulation"
-                >
-                  Update Profile →
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
+       
 
         {/* Upload Form (Teacher Only) */}
         {showUploadForm && user?.role === 'teacher' && (
