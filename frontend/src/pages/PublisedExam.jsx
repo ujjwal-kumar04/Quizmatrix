@@ -60,9 +60,9 @@ const PublishedExams = () => {
         
         {/* Header */}
         <div className="mb-6 pb-6 border-b border-gray-200 dark:border-slate-800">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">🚀 Published Exams</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"> Published Exams</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            ये एग्जाम्स लाइव हैं और स्टूडेंट्स इन्हें अटेंप्ट कर सकते हैं।
+            Exams that you have published are listed here. You can view their details and results.
           </p>
         </div>
 
