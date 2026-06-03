@@ -45,7 +45,7 @@ const Navbar = () => {
                 <span className="text-white font-bold text-xl">Q</span>
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 dark:from-primary-400 dark:to-primary-500 bg-clip-text text-transparent">
-                Quiz Matrix
+                QuizMatrix
               </span>
             </Link>
           </div>

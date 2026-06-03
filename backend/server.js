@@ -54,6 +54,7 @@ connectDB();
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
+app.use("/api/contact", require("./routes/contact"));
 app.use('/api/exams', require('./routes/exams'));
 app.use('/api/results', require('./routes/results'));
 app.use('/api/notifications', require('./routes/notifications'));
