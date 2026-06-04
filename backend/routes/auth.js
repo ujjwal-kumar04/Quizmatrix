@@ -356,44 +356,44 @@ router.put('/profile', authMiddleware, async (req, res) => {
 });
 
 
-// --- CLOUDINARY UPLOAD CONFIG & ROUTE ---
+
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-// Cloudinary को कॉन्फ़िगर करें
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Cloudinary स्टोरेज सेटअप
+
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'user_profiles', // Cloudinary में इस नाम का फोल्डर बन जाएगा
+    folder: 'user_profiles',
     allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    transformation: [{ width: 400, height: 400, crop: 'limit' }], // इमेज ऑटोमैटिक रीसाइज हो जाएगी
+    transformation: [{ width: 400, height: 400, crop: 'limit' }], 
   },
 });
 
 const upload = multer({ storage: storage });
 
-// मुख्य अपलोड रूट
+
 router.post('/upload-profile-picture', authMiddleware, upload.single('profileImage'), async (req, res) => {
   try {
-    // Cloudinary अपलोड होने के बाद फ़ाइल का सीधा URL 'req.file.path' में मिलता है
+    
     if (!req.file || !req.file.path) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    const imageUrl = req.file.path; // यह एक लाइव https://res.cloudinary.com/... लिंक होगा
+    const imageUrl = req.file.path; 
 
-    // यूजर मॉडल अपडेट करें
+    
     const user = await User.findByIdAndUpdate(
       req.userId,
-      { profileImage: imageUrl }, // अब DB में सीधा लाइव URL सेव होगा
+      { profileImage: imageUrl }, 
       { new: true }
     );
 

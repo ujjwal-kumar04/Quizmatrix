@@ -154,7 +154,7 @@ const Profile = () => {
 
     try {
       const formData = new FormData();
-      formData.append('profilePicture', file);
+      formData.append('profileImage', file);
 
       await api.post('/auth/upload-profile-picture', formData, {
         headers: {

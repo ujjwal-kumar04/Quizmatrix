@@ -116,6 +116,7 @@ const GLOBAL_CSS = `
   @media(max-width:480px) { .qm-footer-grid { grid-template-columns:1fr !important; } }
 `;
 
+
 /* ─── NAVBAR ─────────────────────────────────────────────── */
 function Navbar({ page, setPage }) {
   const [scrolled, setScrolled] = useState(false);
@@ -149,6 +150,68 @@ function Navbar({ page, setPage }) {
     { label: "Contact",       action: () => go("contact") },
   ];
 
+  // return (
+  //   <>
+  //     <style>{GLOBAL_CSS}</style>
+  //     <nav style={{ ...S.nav, boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.08)" : "none" }}>
+  //       <div className="flex items-center">
+  //           <Link to="/" className="flex items-center space-x-2 group">
+  //             <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-glow group-hover:scale-110 transition-all duration-300">
+  //               <span className="text-white font-bold text-xl">Q</span>
+  //             </div>
+  //             <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 dark:from-primary-400 dark:to-primary-500 bg-clip-text text-transparent">
+  //               QuizMatrix
+  //             </span>
+  //           </Link>
+  //         </div>
+  //       {/* Desktop */}
+  //       <div className="qm-desktop-nav" style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+  //         {navItems.map(({ label, action }) => (
+  //           <span key={label} onClick={action} style={S.navLink}
+  //             onMouseEnter={e => { e.target.style.color = "#4338ca"; e.target.style.borderBottomColor = "#4338ca"; }}
+  //             onMouseLeave={e => { e.target.style.color = "#64748b"; e.target.style.borderBottomColor = "transparent"; }}>
+  //             {label}
+  //           </span>
+  //         ))}
+  //          <button
+  //     className="qm-btn-p"
+  //     style={S.btnPrimary}
+  //     onClick={() => navigate("/login")}
+  //   >
+  //     Login Now
+  //   </button>
+  //       </div>
+
+  //       {/* Hamburger */}
+  //       <button className="qm-hamburger" onClick={() => setMenuOpen(!menuOpen)}
+  //         style={{ display: "none", background: "none", border: "none", cursor: "pointer", padding: 4, flexDirection: "column", gap: 5 }}>
+  //         {[0, 1, 2].map(i => (
+  //           <span key={i} style={{
+  //             width: 22, height: 2, background: "#0f172a", borderRadius: 2, display: "block", transition: "all 0.3s",
+  //             transform: menuOpen ? (i === 0 ? "rotate(45deg) translate(5px,5px)" : i === 2 ? "rotate(-45deg) translate(5px,-5px)" : "none") : "none",
+  //             opacity: menuOpen && i === 1 ? 0 : 1,
+  //           }} />
+  //         ))}
+  //       </button>
+  //     </nav>
+
+  //     {/* Mobile menu */}
+  //     {menuOpen && (
+  //       <div className="qm-mobile-menu" style={{ position: "fixed", top: 64, left: 0, right: 0, background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "1rem 5%", zIndex: 99, display: "flex", flexDirection: "column", gap: "0.8rem" }}>
+  //         {navItems.map(({ label, action }) => (
+  //           <span key={label} onClick={() => { action(); setMenuOpen(false); }}
+  //             style={{ color: "#374151", padding: "0.5rem 0", borderBottom: "1px solid #f1f5f9", cursor: "pointer", fontWeight: 500, fontSize: "0.95rem" }}>
+  //             {label}
+  //           </span>
+  //         ))}
+  //         <button className="qm-btn-p" style={{ ...S.btnPrimary, justifyContent: "center", marginTop: 4 }} onClick={() => navigate("/login") }>
+  //           Login Now
+  //         </button>
+  //       </div>
+  //     )}
+  //   </>
+  // );
+
   return (
     <>
       <style>{GLOBAL_CSS}</style>
@@ -163,6 +226,7 @@ function Navbar({ page, setPage }) {
               </span>
             </Link>
           </div>
+
         {/* Desktop */}
         <div className="qm-desktop-nav" style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
           {navItems.map(({ label, action }) => (
@@ -172,13 +236,48 @@ function Navbar({ page, setPage }) {
               {label}
             </span>
           ))}
-           <button
-      className="qm-btn-p"
-      style={S.btnPrimary}
-      onClick={() => navigate("/login")}
-    >
-      Login Now
-    </button>
+
+          {/* NEW: Desktop Mobile App Download Section */}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", borderLeft: "1px solid #e2e8f0", paddingLeft: "1.5rem" }}>
+            <span style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 500 }}>
+              Get our App:
+            </span>
+            <a 
+              href="/app/app-release.apk" // <-- Yahan apne APK file ka path/URL dalein
+              download="QuizMatrix.apk"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                background: "#10b981", // Emerald Green color mobile app ke liye
+                color: "#fff",
+                padding: "6px 14px",
+                borderRadius: "8px",
+                fontSize: "0.85rem",
+                fontWeight: "600",
+                textDecoration: "none",
+                boxShadow: "0 2px 4px rgba(16, 185, 129, 0.2)",
+                transition: "all 0.2s"
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = "#059669"}
+              onMouseLeave={e => e.currentTarget.style.background = "#10b981"}
+            >
+              {/* SVG Icon for Mobile/Download */}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              </svg>
+              Download APK
+            </a>
+          </div>
+
+          <button
+            className="qm-btn-p"
+            style={S.btnPrimary}
+            onClick={() => navigate("/login")}
+          >
+            Login Now
+          </button>
         </div>
 
         {/* Hamburger */}
@@ -203,7 +302,39 @@ function Navbar({ page, setPage }) {
               {label}
             </span>
           ))}
-          <button className="qm-btn-p" style={{ ...S.btnPrimary, justifyContent: "center", marginTop: 4 }} onClick={() => navigate("/login") }>
+
+          {/* NEW: Mobile Menu App Download Section */}
+          <div style={{ padding: "0.5rem 0", borderBottom: "1px solid #f1f5f9", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <span style={{ fontSize: "0.85rem", color: "#64748b" }}>
+              Try our Mobile App for a better experience!
+            </span>
+            <a 
+  href="/app/app-release.apk" // <-- Public folder ka direct path (shuruat / se hogi)
+  download="QuizMatrix.apk"
+  onClick={() => setMenuOpen(false)}
+  style={{
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+    background: "#10b981",
+    color: "#fff",
+    padding: "10px",
+    borderRadius: "8px",
+    fontSize: "0.9rem",
+    fontWeight: "600",
+    textDecoration: "none"
+  }}
+>
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+    <line x1="12" y1="18" x2="12.01" y2="18"></line>
+  </svg>
+  Download Mobile App (APK)
+</a>
+          </div>
+
+          <button className="qm-btn-p" style={{ ...S.btnPrimary, justifyContent: "center", marginTop: 4 }} onClick={() => { navigate("/login"); setMenuOpen(false); }}>
             Login Now
           </button>
         </div>
@@ -360,20 +491,84 @@ function HowItWorks() {
 }
 
 /* ─── CTA STRIP ──────────────────────────────────────────── */
+// Ensure this import path is correct in your project
+
+// Ensure this import path is correct
+
 function CTAStrip({ setPage }) {
   const [ref, vis] = useScrollReveal();
+  
   return (
-    <section style={{ background: "linear-gradient(135deg,#eff6ff,#faf5ff)", borderTop: "1px solid #e2e8f0", padding: "5rem 5%", textAlign: "center" }}>
-      <div ref={ref} className={`qm-reveal${vis ? " vis" : ""}`}>
-        <div style={S.label}>Join Thousands of Learners</div>
-        <h2 style={{ ...S.h2, textAlign: "center" }}>Ready to <span style={{ color: "#4338ca" }}>Transform</span> How You Learn?</h2>
-        <p style={{ ...S.sub, margin: "0 auto 2rem" }}>Sign up free today. No credit card needed. Start quizzing in under 2 minutes.</p>
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          <button className="qm-btn-p" style={S.btnPrimary} onClick={() => { setPage("home"); window.scrollTo({ top: 0 }); }}>🎓 I'm a Student</button>
-          <button className="qm-btn-p" style={{ ...S.btnPrimary, background: "#7c3aed" }} onClick={() => { setPage("home"); window.scrollTo({ top: 0 }); }}>👨‍🏫 I'm a Teacher</button>
+    <>
+      {/* 1. Aapka Existing Section */}
+      <section style={{ background: "linear-gradient(135deg,#eff6ff,#faf5ff)", borderTop: "1px solid #e2e8f0", padding: "5rem 5%", textAlign: "center" }}>
+        <div ref={ref} className={`qm-reveal${vis ? " vis" : ""}`}>
+          <div style={S.label}>Join Thousands of Learners</div>
+          <h2 style={{ ...S.h2, textAlign: "center" }}>Ready to <span style={{ color: "#4338ca" }}>Transform</span> How You Learn?</h2>
+          <p style={{ ...S.sub, margin: "0 auto 2rem" }}>Sign up free today. No credit card needed. Start quizzing in under 2 minutes.</p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            <button className="qm-btn-p" style={S.btnPrimary} onClick={() => { setPage("home"); window.scrollTo({ top: 0 }); }}>🎓 I'm a Student</button>
+            <button className="qm-btn-p" style={{ ...S.btnPrimary, background: "#7c3aed" }} onClick={() => { setPage("home"); window.scrollTo({ top: 0 }); }}>👨‍🏫 I'm a Teacher</button>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* 2. NEW: Fully Responsive App Section (Website Theme Matched) */}
+      <section className="w-full bg-white border-t border-slate-100 px-[5%] py-20 font-sans">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
+          
+          {/* Left Side: Content & Advantages */}
+          <div className="flex-1 min-w-[300px] text-left">
+            <span className="inline-block bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase mb-4">
+              ⚡ QuizMatrix Android App
+            </span>
+            
+            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight mb-4">
+              Prefer Mobile? Get Our <span className="text-indigo-600">Official APK</span>
+            </h2>
+            
+            <p className="text-slate-500 text-base leading-relaxed mb-8">
+              Website se bhi behtar, fast aur lag-free experience ke liye hamara mobile app install karein. 
+              Aapko milenge instant real-time updates aur customized quiz dashboards directly aapke phone par.
+            </p>
+
+            {/* Advantages List */}
+            <div className="flex flex-col gap-5 mb-8">
+              {[
+                { icon: "📱", title: "Optimized Layout", desc: "Mobile screen ke liye perfect fit UI design." },
+                { icon: "🚀", title: "Faster Loading", desc: "Kam data aur slow internet me bhi smooth working." },
+                { icon: "🔒", title: "Safe & Secure", desc: "Official direct compiled package, completely safe to install." }
+              ].map((item, index) => (
+                <div key={index} className="flex items-start gap-4">
+                  <span className="text-2xl select-none">{item.icon}</span>
+                  <div>
+                    <h4 className="text-base font-semibold text-slate-800 mb-0.5">{item.title}</h4>
+                    <p className="text-sm text-slate-500 m-0">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA Button (Matched to Student/Primary Indigo Button) */}
+            <a 
+              href="/app/app-release.apk" // <-- Yahan apne APK file ka path/URL dalein
+              download="QuizMatrix.apk"
+              className="inline-flex items-center gap-2.5 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3.5 rounded-lg text-sm font-semibold no-underline shadow-lg shadow-indigo-600/25 transition-all duration-200 hover:-translate-y-0.5"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Download App Now (.apk)
+            </a>
+          </div>
+
+          
+
+        </div>
+      </section>
+    </>
   );
 }
 

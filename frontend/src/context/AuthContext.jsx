@@ -40,9 +40,8 @@ export const AuthProvider = ({ children }) => {
   const refetchUser = useCallback(async () => {
     try {
       const response = await axios.get('/auth/me');
-      console.log('[AuthContext] Refetch user response:', response.data.user);
-      console.log('[AuthContext] Profile image after refetch:', response.data.user.profileImage);
-      setUser(response.data.user);
+      
+     setUser(response.data.user);
       return response.data.user;
     } catch (error) {
       console.error('Error refetching user:', error);
