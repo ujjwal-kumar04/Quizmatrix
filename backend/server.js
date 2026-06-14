@@ -40,13 +40,14 @@ app.use(cors({
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const connectDB = async () => {
+  const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/quizmatrix';
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
-
+    await mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
     console.log('MongoDB connected');
   } catch (err) {
-    console.error('MongoDB connection failed:', err.message);
-    
+    console.error('MongoDB connection failed:', err && err.message ? err.message : err);
+    console.error('Tried URI:', mongoUri);
+    process.exit(1);
   }
 };
 

@@ -7,6 +7,7 @@ import {
   Github,
   Linkedin
 } from "lucide-react";
+import { useTheme } from '../context/ThemeContext.jsx';
 /* ─── DATA ───────────────────────────────────────────────── */
 
 
@@ -74,21 +75,55 @@ function useCountUp(target, duration = 1800) {
   return [ref, display];
 }
 
-/* ─── SHARED STYLES ──────────────────────────────────────── */
-const S = {
-  page:       { fontFamily: "'Plus Jakarta Sans', sans-serif", background: "#f8fafc", minHeight: "100vh", color: "#0f172a" },
-  nav:        { position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(255,255,255,0.92)", backdropFilter: "blur(16px)", borderBottom: "1px solid #e2e8f0", padding: "0 5%", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" },
-  logo:       { fontWeight: 800, fontSize: "1.35rem", color: "#0f172a", letterSpacing: "-0.03em", cursor: "pointer", userSelect: "none" },
-  navLink:    { color: "#64748b", fontSize: "0.9rem", fontWeight: 500, cursor: "pointer", padding: "4px 0", borderBottom: "2px solid transparent", transition: "all 0.2s" },
-  section:    { padding: "6rem 5%", background: "#f8fafc" },
-  sectionW:   { padding: "6rem 5%", background: "#fff" },
-  label:      { fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#4338ca", marginBottom: 8 },
-  h2:         { fontWeight: 800, fontSize: "clamp(1.8rem,3.5vw,2.6rem)", lineHeight: 1.12, letterSpacing: "-0.03em", margin: "0 0 0.8rem", color: "#0f172a" },
-  sub:        { color: "#64748b", fontSize: "1rem", lineHeight: 1.75, maxWidth: 520 },
-  card:       { background: "#fff", border: "1px solid #e2e8f0", borderRadius: 16, padding: "1.6rem" },
-  btnPrimary: { background: "#4f46e5", color: "#fff", padding: "11px 26px", borderRadius: 10, fontWeight: 700, fontSize: "0.92rem", cursor: "pointer", border: "none", display: "inline-flex", alignItems: "center", gap: 8, transition: "background 0.2s, transform 0.15s" },
-  btnOutline: { background: "transparent", color: "#574fee", padding: "11px 26px", borderRadius: 10, fontWeight: 600, fontSize: "0.92rem", cursor: "pointer", border: "1.5px solid #4338ca", display: "inline-flex", alignItems: "center", gap: 8, transition: "all 0.2s" },
-};
+/* ─── SHARED STYLES (LIGHT/DARK AWARE) ──────────────────── */
+function useStyles() {
+  const { darkMode } = useTheme();
+
+  return {
+    page: {
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
+      background: darkMode
+        ? "linear-gradient(180deg, #0b1220 0%, #0f172a 100%)"
+        : "linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)",
+      minHeight: "100vh",
+      color: darkMode ? "#e6eef8" : "#0f172a",
+    },
+    nav: {
+      position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+      background: darkMode ? "rgba(15,23,42,0.88)" : "rgba(255,255,255,0.88)",
+      backdropFilter: "blur(18px)",
+      borderBottom: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(148,163,184,0.35)",
+      boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.25)" : "0 8px 30px rgba(15, 23, 42, 0.04)",
+      padding: "0 5%", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between",
+    },
+    logo: { fontWeight: 800, fontSize: "1.35rem", color: darkMode ? "#f1f5f9" : "#0f172a", letterSpacing: "-0.03em", cursor: "pointer", userSelect: "none" },
+    navLink: { color: darkMode ? "#94a3b8" : "#64748b", fontSize: "0.9rem", fontWeight: 500, cursor: "pointer", padding: "4px 0", borderBottom: "2px solid transparent", transition: "all 0.2s" },
+    section: {
+      padding: "6rem 5%",
+      background: darkMode
+        ? "linear-gradient(180deg, #0b1220 0%, #0f172a 100%)"
+        : "linear-gradient(180deg, #f8fafc 0%, #ffffff 100%)",
+    },
+    sectionW: { padding: "6rem 5%", background: darkMode ? "#0f172a" : "#ffffff" },
+    label: { fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: darkMode ? "#818cf8" : "#4338ca", marginBottom: 8 },
+    h2: { fontWeight: 800, fontSize: "clamp(1.8rem,3.5vw,2.6rem)", lineHeight: 1.12, letterSpacing: "-0.03em", margin: "0 0 0.8rem", color: darkMode ? "#f1f5f9" : "#0f172a" },
+    sub: { color: darkMode ? "#94a3b8" : "#64748b", fontSize: "1rem", lineHeight: 1.75, maxWidth: 520 },
+    card: {
+      background: darkMode ? "#111827" : "#fff",
+      border: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0",
+      borderRadius: 16, padding: "1.6rem",
+      boxShadow: darkMode ? "0 12px 40px rgba(0,0,0,0.35)" : "0 12px 40px rgba(15, 23, 42, 0.06)",
+    },
+    btnPrimary: { background: "linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)", color: "#fff", padding: "11px 26px", borderRadius: 12, fontWeight: 700, fontSize: "0.92rem", cursor: "pointer", border: "none", display: "inline-flex", alignItems: "center", gap: 8, transition: "transform 0.15s, box-shadow 0.2s" },
+    btnOutline: {
+      background: darkMode ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.75)",
+      color: darkMode ? "#c7d2fe" : "#312e81",
+      padding: "11px 26px", borderRadius: 12, fontWeight: 700, fontSize: "0.92rem", cursor: "pointer",
+      border: darkMode ? "1.5px solid rgba(129,140,248,0.35)" : "1.5px solid rgba(99,102,241,0.35)",
+      display: "inline-flex", alignItems: "center", gap: 8, transition: "all 0.2s",
+    },
+  };
+}
 
 const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -105,11 +140,14 @@ const GLOBAL_CSS = `
   .qm-slide-r.vis { opacity:1; transform:translateX(0); }
   .qm-feat-card { transition: transform 0.25s, box-shadow 0.25s !important; }
   .qm-feat-card:hover { transform:translateY(-5px) !important; box-shadow:0 16px 40px rgba(0,0,0,0.10) !important; }
+  .dark .qm-feat-card:hover { box-shadow:0 16px 40px rgba(0,0,0,0.45) !important; }
   .qm-test-card:hover { transform:translateY(-3px); box-shadow:0 10px 30px rgba(0,0,0,0.09); }
-  .qm-btn-p:hover { background:#1d4ed8 !important; transform:translateY(-2px) !important; }
-  .qm-btn-o:hover { background:#eff6ff !important; }
+  .qm-btn-p:hover { transform:translateY(-2px) !important; box-shadow:0 16px 30px rgba(67,56,202,0.25) !important; }
+  .qm-btn-o:hover { background:rgba(238,242,255,0.95) !important; color:#312e81 !important; }
+  .dark .qm-btn-o:hover { background:rgba(129,140,248,0.16) !important; color:#c7d2fe !important; }
   .qm-progress-bar { animation: progressAnim 2.5s ease-in-out infinite alternate; }
   input:focus, textarea:focus, select:focus { border-color:#4338ca !important; box-shadow:0 0 0 3px rgba(37,99,235,0.12) !important; outline:none; }
+  .dark input:focus, .dark textarea:focus, .dark select:focus { border-color:#818cf8 !important; box-shadow:0 0 0 3px rgba(129,140,248,0.18) !important; }
   @media(max-width:800px) { .qm-how-grid { grid-template-columns:1fr !important; } }
   @media(max-width:700px) { .qm-contact-grid { grid-template-columns:1fr !important; } .qm-form-row { grid-template-columns:1fr !important; } }
   @media(max-width:768px) { .qm-footer-grid { grid-template-columns:1fr 1fr !important; } }
@@ -121,6 +159,8 @@ const GLOBAL_CSS = `
 function Navbar({ page, setPage }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { darkMode, toggleDarkMode } = useTheme();
+  const S = useStyles();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
@@ -146,76 +186,20 @@ function Navbar({ page, setPage }) {
     { label: "Features",      action: () => { go("home"); scrollTo("features"); } },
     { label: "How it Works",  action: () => { go("home"); scrollTo("how-it-works"); } },
     { label: "Mock Tests",     action: () => navigate("/mock-test") },
-    
+
     { label: "Contact",       action: () => go("contact") },
   ];
-
-  // return (
-  //   <>
-  //     <style>{GLOBAL_CSS}</style>
-  //     <nav style={{ ...S.nav, boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.08)" : "none" }}>
-  //       <div className="flex items-center">
-  //           <Link to="/" className="flex items-center space-x-2 group">
-  //             <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-glow group-hover:scale-110 transition-all duration-300">
-  //               <span className="text-white font-bold text-xl">Q</span>
-  //             </div>
-  //             <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 dark:from-primary-400 dark:to-primary-500 bg-clip-text text-transparent">
-  //               QuizMatrix
-  //             </span>
-  //           </Link>
-  //         </div>
-  //       {/* Desktop */}
-  //       <div className="qm-desktop-nav" style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-  //         {navItems.map(({ label, action }) => (
-  //           <span key={label} onClick={action} style={S.navLink}
-  //             onMouseEnter={e => { e.target.style.color = "#4338ca"; e.target.style.borderBottomColor = "#4338ca"; }}
-  //             onMouseLeave={e => { e.target.style.color = "#64748b"; e.target.style.borderBottomColor = "transparent"; }}>
-  //             {label}
-  //           </span>
-  //         ))}
-  //          <button
-  //     className="qm-btn-p"
-  //     style={S.btnPrimary}
-  //     onClick={() => navigate("/login")}
-  //   >
-  //     Login Now
-  //   </button>
-  //       </div>
-
-  //       {/* Hamburger */}
-  //       <button className="qm-hamburger" onClick={() => setMenuOpen(!menuOpen)}
-  //         style={{ display: "none", background: "none", border: "none", cursor: "pointer", padding: 4, flexDirection: "column", gap: 5 }}>
-  //         {[0, 1, 2].map(i => (
-  //           <span key={i} style={{
-  //             width: 22, height: 2, background: "#0f172a", borderRadius: 2, display: "block", transition: "all 0.3s",
-  //             transform: menuOpen ? (i === 0 ? "rotate(45deg) translate(5px,5px)" : i === 2 ? "rotate(-45deg) translate(5px,-5px)" : "none") : "none",
-  //             opacity: menuOpen && i === 1 ? 0 : 1,
-  //           }} />
-  //         ))}
-  //       </button>
-  //     </nav>
-
-  //     {/* Mobile menu */}
-  //     {menuOpen && (
-  //       <div className="qm-mobile-menu" style={{ position: "fixed", top: 64, left: 0, right: 0, background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "1rem 5%", zIndex: 99, display: "flex", flexDirection: "column", gap: "0.8rem" }}>
-  //         {navItems.map(({ label, action }) => (
-  //           <span key={label} onClick={() => { action(); setMenuOpen(false); }}
-  //             style={{ color: "#374151", padding: "0.5rem 0", borderBottom: "1px solid #f1f5f9", cursor: "pointer", fontWeight: 500, fontSize: "0.95rem" }}>
-  //             {label}
-  //           </span>
-  //         ))}
-  //         <button className="qm-btn-p" style={{ ...S.btnPrimary, justifyContent: "center", marginTop: 4 }} onClick={() => navigate("/login") }>
-  //           Login Now
-  //         </button>
-  //       </div>
-  //     )}
-  //   </>
-  // );
 
   return (
     <>
       <style>{GLOBAL_CSS}</style>
-      <nav style={{ ...S.nav, boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.08)" : "none" }}>
+      <button
+        onClick={toggleDarkMode}
+        style={{ position: 'fixed', bottom: 16, right: 16, zIndex: 999, padding: '10px 14px', borderRadius: 999, border: '1px solid rgba(99,102,241,0.25)', background: darkMode ? 'linear-gradient(135deg, #111827, #1f2937)' : 'linear-gradient(135deg, #ffffff, #eef2ff)', color: darkMode ? '#ffffff' : '#111827', boxShadow: '0 12px 28px rgba(15,23,42,0.18)' }}
+      >
+        {darkMode ? 'Light mode' : 'Dark mode'}
+      </button>
+      <nav style={{ ...S.nav, boxShadow: scrolled ? (darkMode ? "0 2px 20px rgba(0,0,0,0.4)" : "0 2px 20px rgba(0,0,0,0.08)") : S.nav.boxShadow }}>
         <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2 group">
               <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-glow group-hover:scale-110 transition-all duration-300">
@@ -231,25 +215,25 @@ function Navbar({ page, setPage }) {
         <div className="qm-desktop-nav" style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
           {navItems.map(({ label, action }) => (
             <span key={label} onClick={action} style={S.navLink}
-              onMouseEnter={e => { e.target.style.color = "#4338ca"; e.target.style.borderBottomColor = "#4338ca"; }}
-              onMouseLeave={e => { e.target.style.color = "#64748b"; e.target.style.borderBottomColor = "transparent"; }}>
+              onMouseEnter={e => { e.target.style.color = darkMode ? "#818cf8" : "#4338ca"; e.target.style.borderBottomColor = darkMode ? "#818cf8" : "#4338ca"; }}
+              onMouseLeave={e => { e.target.style.color = darkMode ? "#94a3b8" : "#64748b"; e.target.style.borderBottomColor = "transparent"; }}>
               {label}
             </span>
           ))}
 
-          {/* NEW: Desktop Mobile App Download Section */}
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", borderLeft: "1px solid #e2e8f0", paddingLeft: "1.5rem" }}>
-            <span style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 500 }}>
+          {/* Desktop Mobile App Download Section */}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", borderLeft: darkMode ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e2e8f0", paddingLeft: "1.5rem" }}>
+            <span style={{ fontSize: "0.85rem", color: darkMode ? "#94a3b8" : "#64748b", fontWeight: 500 }}>
               Get our App:
             </span>
-            <a 
-              href="/app/app-release.apk" // <-- Yahan apne APK file ka path/URL dalein
+            <a
+              href="/app/app-release.apk"
               download="QuizMatrix.apk"
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: "6px",
-                background: "#10b981", // Emerald Green color mobile app ke liye
+                background: "#10b981",
                 color: "#fff",
                 padding: "6px 14px",
                 borderRadius: "8px",
@@ -262,7 +246,6 @@ function Navbar({ page, setPage }) {
               onMouseEnter={e => e.currentTarget.style.background = "#059669"}
               onMouseLeave={e => e.currentTarget.style.background = "#10b981"}
             >
-              {/* SVG Icon for Mobile/Download */}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
                 <line x1="12" y1="18" x2="12.01" y2="18"></line>
@@ -285,7 +268,7 @@ function Navbar({ page, setPage }) {
           style={{ display: "none", background: "none", border: "none", cursor: "pointer", padding: 4, flexDirection: "column", gap: 5 }}>
           {[0, 1, 2].map(i => (
             <span key={i} style={{
-              width: 22, height: 2, background: "#0f172a", borderRadius: 2, display: "block", transition: "all 0.3s",
+              width: 22, height: 2, background: darkMode ? "#e6eef8" : "#0f172a", borderRadius: 2, display: "block", transition: "all 0.3s",
               transform: menuOpen ? (i === 0 ? "rotate(45deg) translate(5px,5px)" : i === 2 ? "rotate(-45deg) translate(5px,-5px)" : "none") : "none",
               opacity: menuOpen && i === 1 ? 0 : 1,
             }} />
@@ -295,43 +278,43 @@ function Navbar({ page, setPage }) {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="qm-mobile-menu" style={{ position: "fixed", top: 64, left: 0, right: 0, background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "1rem 5%", zIndex: 99, display: "flex", flexDirection: "column", gap: "0.8rem" }}>
+        <div className="qm-mobile-menu" style={{ position: "fixed", top: 64, left: 0, right: 0, background: darkMode ? "#0f172a" : "#fff", borderBottom: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0", padding: "1rem 5%", zIndex: 99, display: "flex", flexDirection: "column", gap: "0.8rem" }}>
           {navItems.map(({ label, action }) => (
             <span key={label} onClick={() => { action(); setMenuOpen(false); }}
-              style={{ color: "#374151", padding: "0.5rem 0", borderBottom: "1px solid #f1f5f9", cursor: "pointer", fontWeight: 500, fontSize: "0.95rem" }}>
+              style={{ color: darkMode ? "#cbd5e1" : "#374151", padding: "0.5rem 0", borderBottom: darkMode ? "1px solid rgba(255,255,255,0.06)" : "1px solid #f1f5f9", cursor: "pointer", fontWeight: 500, fontSize: "0.95rem" }}>
               {label}
             </span>
           ))}
 
-          {/* NEW: Mobile Menu App Download Section */}
-          <div style={{ padding: "0.5rem 0", borderBottom: "1px solid #f1f5f9", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <span style={{ fontSize: "0.85rem", color: "#64748b" }}>
+          {/* Mobile Menu App Download Section */}
+          <div style={{ padding: "0.5rem 0", borderBottom: darkMode ? "1px solid rgba(255,255,255,0.06)" : "1px solid #f1f5f9", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <span style={{ fontSize: "0.85rem", color: darkMode ? "#94a3b8" : "#64748b" }}>
               Try our Mobile App for a better experience!
             </span>
-            <a 
-  href="/app/app-release.apk" // <-- Public folder ka direct path (shuruat / se hogi)
-  download="QuizMatrix.apk"
-  onClick={() => setMenuOpen(false)}
-  style={{
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "8px",
-    background: "#10b981",
-    color: "#fff",
-    padding: "10px",
-    borderRadius: "8px",
-    fontSize: "0.9rem",
-    fontWeight: "600",
-    textDecoration: "none"
-  }}
->
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-    <line x1="12" y1="18" x2="12.01" y2="18"></line>
-  </svg>
-  Download Mobile App (APK)
-</a>
+            <a
+              href="/app/app-release.apk"
+              download="QuizMatrix.apk"
+              onClick={() => setMenuOpen(false)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                background: "#10b981",
+                color: "#fff",
+                padding: "10px",
+                borderRadius: "8px",
+                fontSize: "0.9rem",
+                fontWeight: "600",
+                textDecoration: "none"
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              </svg>
+              Download Mobile App (APK)
+            </a>
           </div>
 
           <button className="qm-btn-p" style={{ ...S.btnPrimary, justifyContent: "center", marginTop: 4 }} onClick={() => { navigate("/login"); setMenuOpen(false); }}>
@@ -346,10 +329,11 @@ function Navbar({ page, setPage }) {
 /* ─── STAT CARD (own component so hook is at top level) ──── */
 function StatCard({ stat }) {
   const [ref, display] = useCountUp(stat.value);
+  const { darkMode } = useTheme();
   return (
     <div ref={ref} style={{ textAlign: "center" }}>
-      <div style={{ fontSize: "1.9rem", fontWeight: 800, color: "#4338ca", letterSpacing: "-0.04em", lineHeight: 1 }}>{display}</div>
-      <div style={{ fontSize: "0.78rem", color: "#94a3b8", marginTop: 3, fontWeight: 500 }}>{stat.label}</div>
+      <div style={{ fontSize: "1.9rem", fontWeight: 800, color: darkMode ? "#818cf8" : "#4338ca", letterSpacing: "-0.04em", lineHeight: 1 }}>{display}</div>
+      <div style={{ fontSize: "0.78rem", color: darkMode ? "#64748b" : "#94a3b8", marginTop: 3, fontWeight: 500 }}>{stat.label}</div>
       <div style={{ fontSize: "0.7rem", color: "#22c55e", marginTop: 2 }}>↑ {stat.trend}</div>
     </div>
   );
@@ -359,20 +343,22 @@ function StatCard({ stat }) {
 function Hero({ setPage }) {
   const go = (p) => { setPage(p); window.scrollTo({ top: 0 }); };
   const navigate = useNavigate();
+  const { darkMode } = useTheme();
+  const S = useStyles();
   return (
-    <section style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "7rem 5% 5rem", background: "linear-gradient(155deg,#f0f7ff 0%,#f8fafc 50%,#faf5ff 100%)", position: "relative", overflow: "hidden" }}>
+    <section style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "7rem 5% 5rem", background: darkMode ? "linear-gradient(155deg,#071024 0%,#0b1220 50%,#071024 100%)" : "linear-gradient(155deg,#f0f7ff 0%,#f8fafc 50%,#faf5ff 100%)", position: "relative", overflow: "hidden" }}>
       <div style={{ position: "absolute", top: "12%", right: "6%", width: 340, height: 340, background: "radial-gradient(circle,rgba(37,99,235,0.08),transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
       <div style={{ position: "absolute", bottom: "10%", left: "4%", width: 280, height: 280, background: "radial-gradient(circle,rgba(124,58,237,0.07),transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
 
       <div style={{ position: "relative", zIndex: 1, maxWidth: 760, margin: "0 auto" }}>
-        
 
-        <h1 style={{ fontWeight: 800, fontSize: "clamp(2.6rem,6vw,4.6rem)", lineHeight: 1.06, letterSpacing: "-0.035em", color: "#0f172a", marginBottom: 20, animation: "fadeUp 0.7s ease 0.1s both" }}>
+
+        <h1 style={{ fontWeight: 800, fontSize: "clamp(2.6rem,6vw,4.6rem)", lineHeight: 1.06, letterSpacing: "-0.035em", color: darkMode ? '#e6eef8' : '#0f172a', marginBottom: 20, animation: "fadeUp 0.7s ease 0.1s both" }}>
           Ace Every Exam with<br />
-          <span style={{ color: "#4338ca" }}>QuizMatrix</span>
+          <span style={{ color: darkMode ? "#818cf8" : "#4338ca" }}>QuizMatrix</span>
         </h1>
 
-        <p style={{ color: "#64748b", fontSize: "1.1rem", lineHeight: 1.75, maxWidth: 560, margin: "0 auto 2.5rem", animation: "fadeUp 0.7s ease 0.2s both" }}>
+        <p style={{ color: darkMode ? '#9aa6b8' : '#64748b', fontSize: "1.1rem", lineHeight: 1.75, maxWidth: 560, margin: "0 auto 2.5rem", animation: "fadeUp 0.7s ease 0.2s both" }}>
           The ultimate platform for online MCQ quizzes, timer-based exams, and instant results. Built for students, designed for teachers.
         </p>
 
@@ -381,7 +367,7 @@ function Hero({ setPage }) {
           <button className="qm-btn-o" style={S.btnOutline} onClick={() => navigate("/mock-test")}>📝 Try a Mock Test</button>
         </div>
 
-        
+
       </div>
     </section>
   );
@@ -390,17 +376,19 @@ function Hero({ setPage }) {
 /* ─── FEATURE CARD (own component) ──────────────────────── */
 function FeatureCard({ feature, delay }) {
   const [ref, vis] = useScrollReveal();
+  const { darkMode } = useTheme();
+  const S = useStyles();
   return (
     <div ref={ref} className={`qm-feat-card qm-reveal${vis ? " vis" : ""}`}
       style={{ ...S.card, transitionDelay: `${delay}s` }}>
       <div style={{ width: 50, height: 50, borderRadius: 12, background: feature.color + "15", border: `1px solid ${feature.color}30`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.4rem", marginBottom: 14 }}>
         {feature.emoji}
       </div>
-      <h3 style={{ fontWeight: 700, fontSize: "1.05rem", marginBottom: 8, color: "#0f172a" }}>{feature.title}</h3>
-      <p style={{ color: "#64748b", fontSize: "0.875rem", lineHeight: 1.7, marginBottom: 14 }}>{feature.desc}</p>
+      <h3 style={{ fontWeight: 700, fontSize: "1.05rem", marginBottom: 8, color: darkMode ? "#f1f5f9" : "#0f172a" }}>{feature.title}</h3>
+      <p style={{ color: darkMode ? "#94a3b8" : "#64748b", fontSize: "0.875rem", lineHeight: 1.7, marginBottom: 14 }}>{feature.desc}</p>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
         {feature.tags.map(t => (
-          <span key={t} style={{ fontSize: "0.72rem", padding: "3px 10px", borderRadius: 100, background: "#f1f5f9", color: "#475569", fontWeight: 600 }}>{t}</span>
+          <span key={t} style={{ fontSize: "0.72rem", padding: "3px 10px", borderRadius: 100, background: darkMode ? "rgba(255,255,255,0.06)" : "#f1f5f9", color: darkMode ? "#cbd5e1" : "#475569", fontWeight: 600 }}>{t}</span>
         ))}
       </div>
     </div>
@@ -409,11 +397,13 @@ function FeatureCard({ feature, delay }) {
 
 /* ─── FEATURES SECTION ───────────────────────────────────── */
 function Features() {
+  const { darkMode } = useTheme();
+  const S = useStyles();
   return (
     <section id="features" style={S.sectionW}>
       <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
         <div style={S.label}>What We Offer</div>
-        <h2 style={{ ...S.h2, textAlign: "center" }}>Everything You Need to <span style={{ color: "#4338ca" }}>Quiz Smarter</span></h2>
+        <h2 style={{ ...S.h2, textAlign: "center" }}>Everything You Need to <span style={{ color: darkMode ? "#818cf8" : "#4338ca" }}>Quiz Smarter</span></h2>
         <p style={{ ...S.sub, margin: "0 auto" }}>From creating quizzes to tracking performance — every tool, built right in.</p>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: "1.2rem", maxWidth: 1200, margin: "0 auto" }}>
@@ -427,6 +417,8 @@ function Features() {
 function HowItWorks() {
   const [leftRef, leftVis] = useScrollReveal();
   const [rightRef, rightVis] = useScrollReveal();
+  const { darkMode } = useTheme();
+  const S = useStyles();
 
   const steps = [
     { n: "01", h: "Create Your Account",   p: "Sign up as Teacher or Student. JWT-based authentication keeps your data fully secure and private." },
@@ -439,19 +431,19 @@ function HowItWorks() {
       <div className="qm-how-grid" style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center" }}>
         <div ref={leftRef} className={`qm-slide-l${leftVis ? " vis" : ""}`}>
           <div style={S.label}>Simple Process</div>
-          <h2 style={S.h2}>Up & Running in <span style={{ color: "#4338ca" }}>3 Easy Steps</span></h2>
+          <h2 style={S.h2}>Up & Running in <span style={{ color: darkMode ? "#818cf8" : "#4338ca" }}>3 Easy Steps</span></h2>
           <p style={{ ...S.sub, marginBottom: "2.5rem" }}>Whether you're a teacher or student, QuizMatrix gets you going in minutes.</p>
           {steps.map((s, i) => (
             <div key={s.n} style={{ display: "flex", gap: 16, paddingBottom: 28, position: "relative" }}>
               {i < steps.length - 1 && (
-                <div style={{ position: "absolute", left: 20, top: 50, width: 2, height: "calc(100% - 20px)", background: "linear-gradient(to bottom,#bfdbfe,transparent)" }} />
+                <div style={{ position: "absolute", left: 20, top: 50, width: 2, height: "calc(100% - 20px)", background: darkMode ? "linear-gradient(to bottom,rgba(129,140,248,0.35),transparent)" : "linear-gradient(to bottom,#bfdbfe,transparent)" }} />
               )}
-              <div style={{ minWidth: 42, height: 42, borderRadius: 12, background: "#4338ca", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: "0.85rem", flexShrink: 0 }}>
+              <div style={{ minWidth: 42, height: 42, borderRadius: 12, background: darkMode ? "#6366f1" : "#4338ca", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: "0.85rem", flexShrink: 0 }}>
                 {s.n}
               </div>
               <div>
-                <h4 style={{ fontWeight: 700, fontSize: "1rem", color: "#0f172a", marginBottom: 5 }}>{s.h}</h4>
-                <p style={{ color: "#64748b", fontSize: "0.875rem", lineHeight: 1.65 }}>{s.p}</p>
+                <h4 style={{ fontWeight: 700, fontSize: "1rem", color: darkMode ? "#f1f5f9" : "#0f172a", marginBottom: 5 }}>{s.h}</h4>
+                <p style={{ color: darkMode ? "#94a3b8" : "#64748b", fontSize: "0.875rem", lineHeight: 1.65 }}>{s.p}</p>
               </div>
             </div>
           ))}
@@ -459,27 +451,32 @@ function HowItWorks() {
 
         {/* Mock browser */}
         <div ref={rightRef} className={`qm-slide-r${rightVis ? " vis" : ""}`}>
-          <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 16, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.10)" }}>
-            <div style={{ background: "#f8fafc", padding: "10px 14px", display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid #e2e8f0" }}>
+          <div style={{ background: darkMode ? "#111827" : "#fff", border: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0", borderRadius: 16, overflow: "hidden", boxShadow: darkMode ? "0 20px 60px rgba(0,0,0,0.45)" : "0 20px 60px rgba(0,0,0,0.10)" }}>
+            <div style={{ background: darkMode ? "#0b1220" : "#f8fafc", padding: "10px 14px", display: "flex", alignItems: "center", gap: 8, borderBottom: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0" }}>
               <div style={{ display: "flex", gap: 5 }}>
                 {["#ef4444","#f59e0b","#22c55e"].map(c => <span key={c} style={{ width: 10, height: 10, borderRadius: "50%", background: c, display: "inline-block" }} />)}
               </div>
-              <div style={{ flex: 1, background: "#e2e8f0", borderRadius: 6, padding: "3px 10px", fontSize: "0.72rem", color: "#64748b" }}>quizmatrix.app/quiz/live</div>
+              <div style={{ flex: 1, background: darkMode ? "rgba(255,255,255,0.06)" : "#e2e8f0", borderRadius: 6, padding: "3px 10px", fontSize: "0.72rem", color: darkMode ? "#94a3b8" : "#64748b" }}>quizmatrix.app/quiz/live</div>
             </div>
             <div style={{ padding: "1.4rem" }}>
-              <div style={{ fontWeight: 700, fontSize: "0.95rem", color: "#0f172a", marginBottom: 6 }}>📘 Computer Science — Data Structures</div>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: "0.74rem", color: "#4338ca", background: "#eff6ff", padding: "3px 10px", borderRadius: 100, marginBottom: 14 }}>⏱ 08:42 remaining</div>
-              <div style={{ fontSize: "0.84rem", fontWeight: 500, color: "#1e293b", marginBottom: 12, lineHeight: 1.55 }}>Q3. Which data structure uses LIFO order?</div>
+              <div style={{ fontWeight: 700, fontSize: "0.95rem", color: darkMode ? "#f1f5f9" : "#0f172a", marginBottom: 6 }}>📘 Computer Science — Data Structures</div>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: "0.74rem", color: darkMode ? "#a5b4fc" : "#4338ca", background: darkMode ? "rgba(129,140,248,0.12)" : "#eff6ff", padding: "3px 10px", borderRadius: 100, marginBottom: 14 }}>⏱ 08:42 remaining</div>
+              <div style={{ fontSize: "0.84rem", fontWeight: 500, color: darkMode ? "#e2e8f0" : "#1e293b", marginBottom: 12, lineHeight: 1.55 }}>Q3. Which data structure uses LIFO order?</div>
               {[["A","Queue",false],["B","Stack",true],["C","Linked List",false],["D","Tree",false]].map(([l, opt, sel]) => (
-                <div key={l} style={{ background: sel ? "#eff6ff" : "#f8fafc", border: `1px solid ${sel ? "#bfdbfe" : "#e2e8f0"}`, borderRadius: 8, padding: "8px 12px", fontSize: "0.8rem", marginBottom: 6, color: sel ? "#4338ca" : "#475569", fontWeight: sel ? 600 : 400, display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ width: 20, height: 20, borderRadius: "50%", background: sel ? "#4338ca" : "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.68rem", color: sel ? "#fff" : "#64748b", fontWeight: 700, flexShrink: 0 }}>{l}</span>
+                <div key={l} style={{
+                  background: sel ? (darkMode ? "rgba(129,140,248,0.12)" : "#eff6ff") : (darkMode ? "rgba(255,255,255,0.03)" : "#f8fafc"),
+                  border: `1px solid ${sel ? (darkMode ? "rgba(129,140,248,0.35)" : "#bfdbfe") : (darkMode ? "rgba(255,255,255,0.08)" : "#e2e8f0")}`,
+                  borderRadius: 8, padding: "8px 12px", fontSize: "0.8rem", marginBottom: 6,
+                  color: sel ? (darkMode ? "#a5b4fc" : "#4338ca") : (darkMode ? "#94a3b8" : "#475569"),
+                  fontWeight: sel ? 600 : 400, display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ width: 20, height: 20, borderRadius: "50%", background: sel ? (darkMode ? "#6366f1" : "#4338ca") : (darkMode ? "rgba(255,255,255,0.1)" : "#e2e8f0"), display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.68rem", color: sel ? "#fff" : (darkMode ? "#94a3b8" : "#64748b"), fontWeight: 700, flexShrink: 0 }}>{l}</span>
                   {opt} {sel && "✓"}
                 </div>
               ))}
-              <div style={{ height: 5, background: "#f1f5f9", borderRadius: 3, marginTop: 14 }}>
+              <div style={{ height: 5, background: darkMode ? "rgba(255,255,255,0.06)" : "#f1f5f9", borderRadius: 3, marginTop: 14 }}>
                 <div className="qm-progress-bar" style={{ height: "100%", background: "linear-gradient(90deg,#4338ca,#7c3aed)", borderRadius: 3 }} />
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5, fontSize: "0.7rem", color: "#94a3b8" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5, fontSize: "0.7rem", color: darkMode ? "#64748b" : "#94a3b8" }}>
                 <span>3 of 10 questions</span><span>60% complete</span>
               </div>
             </div>
@@ -491,20 +488,18 @@ function HowItWorks() {
 }
 
 /* ─── CTA STRIP ──────────────────────────────────────────── */
-// Ensure this import path is correct in your project
-
-// Ensure this import path is correct
-
 function CTAStrip({ setPage }) {
   const [ref, vis] = useScrollReveal();
-  
+  const { darkMode } = useTheme();
+  const S = useStyles();
+
   return (
     <>
-      {/* 1. Aapka Existing Section */}
-      <section style={{ background: "linear-gradient(135deg,#eff6ff,#faf5ff)", borderTop: "1px solid #e2e8f0", padding: "5rem 5%", textAlign: "center" }}>
+      {/* 1. Existing Section */}
+      <section style={{ background: darkMode ? "linear-gradient(135deg,#0b1220,#111827)" : "linear-gradient(135deg,#eff6ff,#faf5ff)", borderTop: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0", padding: "5rem 5%", textAlign: "center" }}>
         <div ref={ref} className={`qm-reveal${vis ? " vis" : ""}`}>
           <div style={S.label}>Join Thousands of Learners</div>
-          <h2 style={{ ...S.h2, textAlign: "center" }}>Ready to <span style={{ color: "#4338ca" }}>Transform</span> How You Learn?</h2>
+          <h2 style={{ ...S.h2, textAlign: "center" }}>Ready to <span style={{ color: darkMode ? "#818cf8" : "#4338ca" }}>Transform</span> How You Learn?</h2>
           <p style={{ ...S.sub, margin: "0 auto 2rem" }}>Sign up free today. No credit card needed. Start quizzing in under 2 minutes.</p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
             <button className="qm-btn-p" style={S.btnPrimary} onClick={() => { setPage("home"); window.scrollTo({ top: 0 }); }}>🎓 I'm a Student</button>
@@ -513,47 +508,62 @@ function CTAStrip({ setPage }) {
         </div>
       </section>
 
-      {/* 2. NEW: Fully Responsive App Section (Website Theme Matched) */}
-      <section className="w-full bg-white border-t border-slate-100 px-[5%] py-20 font-sans">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
-          
+      {/* 2. App Section (Theme Matched) */}
+      <section style={{ width: "100%", background: darkMode ? "#0f172a" : "#ffffff", borderTop: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid #f1f5f9", padding: "5rem 5%", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "3rem" }}>
+
           {/* Left Side: Content & Advantages */}
-          <div className="flex-1 min-w-[300px] text-left">
-            <span className="inline-block bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase mb-4">
+          <div style={{ flex: 1, minWidth: 300, textAlign: "left" }}>
+            <span style={{ display: "inline-block", background: darkMode ? "rgba(129,140,248,0.12)" : "#eef2ff", color: darkMode ? "#a5b4fc" : "#4338ca", padding: "4px 12px", borderRadius: 100, fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 16 }}>
               ⚡ QuizMatrix Android App
             </span>
-            
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight mb-4">
-              Prefer Mobile? Get Our <span className="text-indigo-600">Official APK</span>
+
+            <h2 style={{ ...S.h2, fontSize: "clamp(1.8rem,3.5vw,2.4rem)", marginBottom: 16 }}>
+              Prefer Mobile? Get Our <span style={{ color: darkMode ? "#818cf8" : "#4338ca" }}>Official APK</span>
             </h2>
-            
-            <p className="text-slate-500 text-base leading-relaxed mb-8">
-              Website se bhi behtar, fast aur lag-free experience ke liye hamara mobile app install karein. 
+
+            <p style={{ color: darkMode ? "#94a3b8" : "#64748b", fontSize: "1rem", lineHeight: 1.75, marginBottom: "2rem" }}>
+              Website se bhi behtar, fast aur lag-free experience ke liye hamara mobile app install karein.
               Aapko milenge instant real-time updates aur customized quiz dashboards directly aapke phone par.
             </p>
 
             {/* Advantages List */}
-            <div className="flex flex-col gap-5 mb-8">
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", marginBottom: "2rem" }}>
               {[
                 { icon: "📱", title: "Optimized Layout", desc: "Mobile screen ke liye perfect fit UI design." },
                 { icon: "🚀", title: "Faster Loading", desc: "Kam data aur slow internet me bhi smooth working." },
                 { icon: "🔒", title: "Safe & Secure", desc: "Official direct compiled package, completely safe to install." }
               ].map((item, index) => (
-                <div key={index} className="flex items-start gap-4">
-                  <span className="text-2xl select-none">{item.icon}</span>
+                <div key={index} style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
+                  <span style={{ fontSize: "1.5rem", userSelect: "none" }}>{item.icon}</span>
                   <div>
-                    <h4 className="text-base font-semibold text-slate-800 mb-0.5">{item.title}</h4>
-                    <p className="text-sm text-slate-500 m-0">{item.desc}</p>
+                    <h4 style={{ fontSize: "1rem", fontWeight: 600, color: darkMode ? "#f1f5f9" : "#1e293b", marginBottom: 2 }}>{item.title}</h4>
+                    <p style={{ fontSize: "0.875rem", color: darkMode ? "#94a3b8" : "#64748b", margin: 0 }}>{item.desc}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* CTA Button (Matched to Student/Primary Indigo Button) */}
-            <a 
-              href="/app/app-release.apk" // <-- Yahan apne APK file ka path/URL dalein
+            {/* CTA Button */}
+            <a
+              href="/app/app-release.apk"
               download="QuizMatrix.apk"
-              className="inline-flex items-center gap-2.5 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3.5 rounded-lg text-sm font-semibold no-underline shadow-lg shadow-indigo-600/25 transition-all duration-200 hover:-translate-y-0.5"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "10px",
+                background: "#4f46e5",
+                color: "#fff",
+                padding: "14px 24px",
+                borderRadius: 12,
+                fontSize: "0.92rem",
+                fontWeight: 700,
+                textDecoration: "none",
+                boxShadow: darkMode ? "0 12px 30px rgba(79,70,229,0.35)" : "0 12px 30px rgba(79,70,229,0.25)",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = "#4338ca"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "#4f46e5"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -563,8 +573,6 @@ function CTAStrip({ setPage }) {
               Download App Now (.apk)
             </a>
           </div>
-
-          
 
         </div>
       </section>
@@ -587,14 +595,16 @@ function ContactPage() {
 
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { darkMode } = useTheme();
+  const S = useStyles();
 
   const inp = {
     width: "100%",
-    background: "#f8fafc",
-    border: "1px solid #e2e8f0",
+    background: darkMode ? "rgba(255,255,255,0.04)" : "#f8fafc",
+    border: darkMode ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e2e8f0",
     borderRadius: 8,
     padding: "10px 14px",
-    color: "#0f172a",
+    color: darkMode ? "#e6eef8" : "#0f172a",
     fontSize: "0.9rem",
     transition: "border-color 0.2s, box-shadow 0.2s",
     fontFamily: "'Plus Jakarta Sans',sans-serif",
@@ -605,7 +615,7 @@ function ContactPage() {
     fontWeight: 700,
     textTransform: "uppercase",
     letterSpacing: "0.06em",
-    color: "#64748b",
+    color: darkMode ? "#94a3b8" : "#64748b",
     display: "block",
     marginBottom: 5,
   };
@@ -666,11 +676,11 @@ function ContactPage() {
   ];
 
   return (
-    <div style={{ paddingTop: 80, minHeight: "100vh", background: "#f8fafc" }}>
+    <div style={{ paddingTop: 80, minHeight: "100vh", background: darkMode ? "#0b1220" : "#f8fafc" }}>
       <div style={{ padding: "4rem 5% 2rem", textAlign: "center" }}>
         <div style={S.label}>Get In Touch</div>
         <h1 style={{ ...S.h2, textAlign: "center" }}>
-          Contact <span style={{ color: "#4338ca" }}>QuizMatrix</span>
+          Contact <span style={{ color: darkMode ? "#818cf8" : "#4338ca" }}>QuizMatrix</span>
         </h1>
         <p style={{ ...S.sub, margin: "0 auto" }}>
           Questions, feedback, or partnership enquiries — we're here to help.
@@ -695,7 +705,7 @@ function ContactPage() {
             style={{
               fontWeight: 700,
               fontSize: "1.15rem",
-              color: "#0f172a",
+              color: darkMode ? "#f1f5f9" : "#0f172a",
               marginBottom: 12,
             }}
           >
@@ -704,7 +714,7 @@ function ContactPage() {
 
           <p
             style={{
-              color: "#64748b",
+              color: darkMode ? "#94a3b8" : "#64748b",
               fontSize: "0.875rem",
               lineHeight: 1.7,
               marginBottom: 20,
@@ -721,8 +731,8 @@ function ContactPage() {
                 display: "flex",
                 alignItems: "center",
                 gap: 12,
-                background: "#fff",
-                border: "1px solid #e2e8f0",
+                background: darkMode ? "#111827" : "#fff",
+                border: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0",
                 borderRadius: 10,
                 padding: "12px 14px",
                 marginBottom: 10,
@@ -735,7 +745,7 @@ function ContactPage() {
                   style={{
                     fontWeight: 600,
                     fontSize: "0.82rem",
-                    color: "#0f172a",
+                    color: darkMode ? "#f1f5f9" : "#0f172a",
                   }}
                 >
                   {d.label}
@@ -744,7 +754,7 @@ function ContactPage() {
                 <div
                   style={{
                     fontSize: "0.82rem",
-                    color: "#64748b",
+                    color: darkMode ? "#94a3b8" : "#64748b",
                   }}
                 >
                   {d.val}
@@ -757,8 +767,8 @@ function ContactPage() {
         {/* Contact Form */}
         <div
           style={{
-            background: "#fff",
-            border: "1px solid #e2e8f0",
+            background: darkMode ? "#111827" : "#fff",
+            border: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0",
             borderRadius: 16,
             padding: "2rem",
           }}
@@ -767,7 +777,7 @@ function ContactPage() {
             style={{
               fontWeight: 700,
               fontSize: "1.1rem",
-              color: "#0f172a",
+              color: darkMode ? "#f1f5f9" : "#0f172a",
               marginBottom: 20,
             }}
           >
@@ -876,11 +886,11 @@ function ContactPage() {
             <div
               style={{
                 marginTop: 12,
-                background: "#f0fdf4",
-                border: "1px solid #bbf7d0",
+                background: darkMode ? "rgba(16,185,129,0.1)" : "#f0fdf4",
+                border: darkMode ? "1px solid rgba(16,185,129,0.3)" : "1px solid #bbf7d0",
                 borderRadius: 8,
                 padding: "10px 14px",
-                color: "#059669",
+                color: darkMode ? "#34d399" : "#059669",
                 fontSize: "0.875rem",
                 textAlign: "center",
               }}
@@ -896,10 +906,17 @@ function ContactPage() {
 
 /* ─── FOOTER ─────────────────────────────────────────────── */
 function Footer({ setPage }) {
-  const go = (p) => { setPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const navigate = useNavigate();
+  const go = (p) => {
+    if (typeof p === "string" && p.startsWith("/")) {
+      navigate(p);
+    } else {
+      setPage(p);
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
   const cols = [
-    { title: "Quick Links", links: [["Home","home"],["Features","home"],["Mock Test",navigate("/mock-test")],["Contact","contact"]] },
+    { title: "Quick Links", links: [["Home","home"],["Features","home"],["Mock Test","/mock-test"],["Contact","contact"]] },
     { title: "Platform",    links: [["Student Login","home"],["Teacher Login","home"],["Register Free","home"],["Browse Quizzes","mock-tests"]] },
     { title: "Legal",       links: [["Privacy Policy","home"],["Terms of Service","home"],["Cookie Policy","home"],["Accessibility","home"]] },
   ];
@@ -962,6 +979,8 @@ function Footer({ setPage }) {
         textDecoration: "none",
         transition: "all 0.2s",
       }}
+      onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "#e2e8f0"; }}
+      onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.color = "#94a3b8"; }}
     >
       {item.icon}
     </a>
@@ -1002,7 +1021,7 @@ function HomePage({ setPage }) {
       <Features />
       <HowItWorks />
       <CTAStrip setPage={setPage} />
-      
+
       <Footer setPage={setPage} />
     </>
   );
@@ -1011,8 +1030,10 @@ function HomePage({ setPage }) {
 /* ─── ROOT APP ───────────────────────────────────────────── */
 export default function App() {
   const [page, setPage] = useState("home");
-
   useEffect(() => { window.scrollTo({ top: 0 }); }, [page]);
+
+  const { darkMode } = useTheme();
+  const S = useStyles();
 
   return (
     <div style={S.page}>

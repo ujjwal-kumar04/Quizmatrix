@@ -4,20 +4,47 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext.jsx';
 import CreatableSelect from 'react-select/creatable';
 
+const formatDateTimeLocal = (value) => {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
+const getDefaultExamTimes = () => {
+  const start = new Date();
+  start.setMinutes(start.getMinutes() + 5);
+  start.setSeconds(0, 0);
+
+  const end = new Date(start);
+  end.setMinutes(end.getMinutes() + 60);
+
+  return {
+    startTime: formatDateTimeLocal(start),
+    endTime: formatDateTimeLocal(end),
+  };
+};
+
 const CreateExam = () => {
   const navigate = useNavigate();
   const { api, user } = useAuth();
   const { examId } = useParams();
   const [audienceMode, setAudienceMode] = useState('individual');
   const [loading, setLoading] = useState(false);
-  const [examData, setExamData] = useState({
+  const [examData, setExamData] = useState(() => ({
     title: '',
     subject: '',
     description: '',
     duration: 60,
-    startTime: '',
-    endTime: ''
-  });
+    passingMarks: 0,
+    ...getDefaultExamTimes(),
+  }));
   const [status, setStatus] = useState('draft');
   const [audience, setAudience] = useState({
     allowedColleges: [],
@@ -183,7 +210,7 @@ const CreateExam = () => {
         audienceMode,
       };
 
-      const response = examId ? await api.put(`/exams/${examId}`, payload) : await api.post('/exams', payload);
+      const response = examId ? await api.put(`/exams/${examId}`, payload) : await api.post('/exams', { ...payload, status: 'draft' });
 
       toast.success(`Exam created successfully! Exam key: ${response.data.exam?.examKey || 'generated'}`);
       navigate('/teacher-dashboard');
@@ -212,7 +239,7 @@ const CreateExam = () => {
           audienceMode,
         };
 
-        const response = examId ? await api.put(`/exams/${examId}`, payload) : await api.post('/exams', payload);
+        const response = examId ? await api.put(`/exams/${examId}`, payload) : await api.post('/exams', { ...payload, status: 'draft' });
         toast.success(response.data.message || 'Saved as draft');
         navigate('/teacher-dashboard');
       } catch (error) {
@@ -235,8 +262,9 @@ const CreateExam = () => {
             subject: data.subject || '',
             description: data.description || '',
             duration: data.duration || 60,
-            startTime: data.startTime ? new Date(data.startTime).toISOString().slice(0,16) : '',
-            endTime: data.endTime ? new Date(data.endTime).toISOString().slice(0,16) : '',
+            passingMarks: data.passingMarks || 0,
+            startTime: formatDateTimeLocal(data.startTime) || prev.startTime,
+            endTime: formatDateTimeLocal(data.endTime) || prev.endTime,
           }));
           setStatus(data.status || 'draft');
           setAudience(prev => ({
@@ -343,6 +371,20 @@ const CreateExam = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Passing Marks (optional)
+                </label>
+                <input
+                  type="number"
+                  name="passingMarks"
+                  value={examData.passingMarks}
+                  onChange={handleExamDataChange}
+                  min="0"
+                  className="w-full px-4 py-2.5 bg-white dark:bg-dark-900 border border-gray-300 dark:border-dark-600 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Start Time *
                 </label>
                 <input
@@ -350,7 +392,7 @@ const CreateExam = () => {
                   name="startTime"
                   value={examData.startTime}
                   onChange={handleExamDataChange}
-                  min={getMinDateTime()}
+                  min={examId ? undefined : getMinDateTime()}
                   className={`w-full px-4 py-2.5 bg-white dark:bg-dark-900 border rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all ${errors.startTime ? 'border-red-500' : 'border-gray-300 dark:border-dark-600'}`}
                 />
                 {errors.startTime && <p className="mt-1.5 text-sm text-red-600">{errors.startTime}</p>}
@@ -498,20 +540,20 @@ const CreateExam = () => {
             >
               Cancel
             </button>
-            <button
+            {/* <button
               type="button"
               disabled={loading}
               onClick={handleSaveDraft}
               className="px-6 py-2.5 text-sm font-semibold bg-gray-200 dark:bg-dark-700 text-gray-800 dark:text-gray-200 rounded-full hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Saving...' : 'Save as Draft'}
-            </button>
+            </button> */}
             <button
               type="submit"
               disabled={loading}
               className="px-6 py-2.5 text-sm font-semibold bg-primary-500 text-white rounded-full hover:bg-primary-600 active:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Saving...' : (examId ? 'Save & Publish' : 'Create Exam')}
+              {loading ? 'Saving...' : (examId ? 'Save Changes' : 'Save as Draft')}
             </button>
           </div>
         </form>

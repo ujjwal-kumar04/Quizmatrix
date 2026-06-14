@@ -53,6 +53,16 @@ const TeacherDashboard = () => {
     toast.success('Exam key copied to clipboard!');
   };
 
+  const publishExam = async (examId) => {
+    try {
+      const res = await api.post(`/exams/${examId}/publish`);
+      toast.success(res.data?.message || 'Published successfully');
+      fetchExams();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to publish exam');
+    }
+  };
+
   const closeAssignModal = () => {
     setAssignModalOpen(false);
     setAssigningExam(null);
@@ -218,6 +228,31 @@ const TeacherDashboard = () => {
                           </div>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
+                          {exam.status !== 'published' && (
+                            <>
+                              <button
+                                onClick={() => navigate(`/create-exam/${exam._id}`)}
+                                className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-all touch-manipulation"
+                              >
+                                Edit
+                              </button>
+                              {Array.isArray(exam.allowedStudents) && exam.allowedStudents.length > 0 ? (
+                                <button
+                                  onClick={() => publishExam(exam._id)}
+                                  className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600 active:bg-yellow-700 rounded-lg transition-all touch-manipulation"
+                                >
+                                  Publish
+                                </button>
+                              ) : (
+                                <Link
+                                  to="/drafts"
+                                  className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-lg transition-all touch-manipulation"
+                                >
+                                  Assign Students
+                                </Link>
+                              )}
+                            </>
+                          )}
                           <Link to={`/results/${exam._id}`} className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-700 active:text-blue-800 dark:text-blue-300 dark:hover:text-blue-200 whitespace-nowrap text-center sm:text-left border border-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all touch-manipulation">View Results →</Link>
                         </div>
                       </div>

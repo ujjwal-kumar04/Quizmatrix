@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Loading from '../components/Loading.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { validatePassword } from '../utils/helpers';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -82,8 +83,11 @@ const Register = () => {
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } else {
+      const passwordCheck = validatePassword(formData.password);
+      if (!passwordCheck.isValid) {
+        newErrors.password = passwordCheck.errors.join(', ');
+      }
     }
 
     if (!formData.confirmPassword) {

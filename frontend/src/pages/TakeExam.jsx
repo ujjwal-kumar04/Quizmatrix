@@ -383,13 +383,13 @@ const TakeExam = () => {
       
       toast.error('⛔ Maximum warnings reached! Auto-submitting exam...');
       
-      // Auto-submit after showing warning
+      // Auto-submit after showing warning popup
       setTimeout(() => {
         handleSubmitExam(true, 'Multiple violations detected (3 warnings)');
       }, 3000);
     } else {
       setWarningMessage(`Warning ${newWarningCount}/3: ${message}`);
-      setShowWarningModal(true);
+      // Keep popup hidden for non-final warnings; show toast only
       
       toast(`⚠️ Warning ${newWarningCount}/3: ${message}`, {
         icon: '⚠️',

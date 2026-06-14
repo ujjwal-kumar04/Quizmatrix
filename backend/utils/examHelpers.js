@@ -126,6 +126,63 @@ const isPublishedExam = (exam) => {
   return exam.status === 'published';
 };
 
+// Deterministic seeded RNG and shuffle to produce per-student question sets
+const seedFromString = (str) => {
+  const crypto = require('crypto');
+  const hash = crypto.createHash('sha256').update(String(str || '')).digest('hex');
+  // use first 8 chars as hex number
+  return parseInt(hash.slice(0, 8), 16) >>> 0;
+};
+
+const mulberry32 = (seed) => {
+  return function() {
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+};
+
+const shuffleWithSeed = (array, seed) => {
+  const arr = Array.isArray(array) ? array.slice() : [];
+  const rand = mulberry32(Number(seed) >>> 0);
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    const tmp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = tmp;
+  }
+  return arr;
+};
+
+const getStudentQuestionSet = (exam, studentId) => {
+  const base = String(studentId || '') + '::' + String(exam?._id || '');
+  const seed = seedFromString(base);
+  const shuffledQuestions = shuffleWithSeed(exam.questions || [], seed);
+  // shuffle options per question as well deterministically
+  const questions = shuffledQuestions.map((q, idx) => {
+    const optionSeed = seedFromString(base + '::' + idx);
+    const shuffledOptions = shuffleWithSeed(q.options || [], optionSeed).map((opt) => ({
+      text: String(opt.text || ''),
+      originalIndex: Number.isInteger(opt.originalIndex) ? opt.originalIndex : 0,
+    }));
+
+    return {
+      _id: q._id,
+      type: q.type || 'single_correct',
+      question: q.question,
+      marks: q.marks,
+      timePerQuestion: q.timePerQuestion,
+      shortAnswer: q.shortAnswer || '',
+      options: shuffledOptions,
+    };
+  });
+
+  // setNumber deterministic but human-friendly
+  const setNumber = (seed % 1000) + 1;
+  return { questions, setNumber };
+};
+
 const canTeacherManageExam = (exam, userId) => String(exam.teacher) === String(userId);
 
 const canStudentAccessExam = (exam, user) => {
@@ -161,4 +218,5 @@ module.exports = {
   isPublishedExam,
   canTeacherManageExam,
   canStudentAccessExam,
+  getStudentQuestionSet,
 };
