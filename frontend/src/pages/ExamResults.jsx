@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Loading from '../components/Loading.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import toast from 'react-hot-toast';
 import ExcelJS from 'exceljs';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 const ExamResults = () => {
   const { examId } = useParams();
@@ -81,7 +82,8 @@ const ExamResults = () => {
   const downloadPDF = () => {
     if (!results || results.length === 0) return;
 
-    const doc = new jsPDF();
+    try {
+      const doc = new jsPDF();
     
     // Add title
     doc.setFontSize(18);
@@ -105,17 +107,21 @@ const ExamResults = () => {
     ]);
 
     // Add table
-    doc.autoTable({
+      autoTable(doc, {
       head: [['Rank', 'Student', 'Roll No', 'Score', '%', 'Time', 'Set']],
       body: tableData,
       startY: 50,
       styles: { fontSize: 9 },
       headStyles: { fillColor: [59, 130, 246] },
       alternateRowStyles: { fillColor: [245, 247, 250] }
-    });
+      });
 
-    const fileName = `${exam?.title || 'Exam'}_Results_${new Date().toISOString().split('T')[0]}.pdf`;
-    doc.save(fileName);
+      const fileName = `${exam?.title || 'Exam'}_Results_${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(fileName);
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      toast.error('PDF download failed. Please try again.');
+    }
   };
 
   if (loading) {

@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Loading from '../components/Loading.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import toast from 'react-hot-toast';
 import ExcelJS from 'exceljs';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 const DetailedResult = () => {
   const { resultId } = useParams();
@@ -106,7 +107,8 @@ const DetailedResult = () => {
   const downloadPDF = () => {
     if (!result) return;
 
-    const doc = new jsPDF();
+    try {
+      const doc = new jsPDF();
     
     // Header
     doc.setFontSize(20);
@@ -148,7 +150,7 @@ const DetailedResult = () => {
       ];
     });
 
-    doc.autoTable({
+      autoTable(doc, {
       head: [['Q.No', 'Question', 'Result', 'Marks']],
       body: tableData,
       startY: 95,
@@ -170,10 +172,14 @@ const DetailedResult = () => {
           }
         }
       }
-    });
+      });
 
-    const fileName = `${result.exam.title}_${result.student.name}_Result.pdf`;
-    doc.save(fileName);
+      const fileName = `${result.exam.title}_${result.student.name}_Result.pdf`;
+      doc.save(fileName);
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      toast.error('PDF download failed. Please try again.');
+    }
   };
 
   if (loading) {

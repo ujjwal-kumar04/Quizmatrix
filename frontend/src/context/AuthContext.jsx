@@ -147,7 +147,12 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     delete axios.defaults.headers.common['Authorization'];
     toast.success('Logged out successfully');
-  }, []);
+    try {
+      navigate('/', { replace: true });
+    } catch (e) {
+      // fallback: ignore navigation errors
+    }
+  }, [navigate]);
 
   const updateProfile = useCallback(async (profileData) => {
     try {

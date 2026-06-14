@@ -5,6 +5,19 @@ const requireAuth = require('../utils/requireAuth');
 
 const router = express.Router();
 
+const compareResultsForRank = (a, b) => {
+  const percentageDiff = Number(b.percentage || 0) - Number(a.percentage || 0);
+  if (percentageDiff !== 0) return percentageDiff;
+
+  const marksDiff = Number(b.obtainedMarks || 0) - Number(a.obtainedMarks || 0);
+  if (marksDiff !== 0) return marksDiff;
+
+  const timeDiff = Number(a.timeTaken || 0) - Number(b.timeTaken || 0);
+  if (timeDiff !== 0) return timeDiff;
+
+  return new Date(a.submittedAt || a.createdAt || 0) - new Date(b.submittedAt || b.createdAt || 0);
+};
+
 const buildResult = (result) => ({
   _id: result._id,
   exam: result.exam,
@@ -113,9 +126,9 @@ router.get('/exam/:examId', requireAuth, async (req, res) => {
 
     const results = await Result.find({ exam: req.params.examId })
       .populate('student', 'name email rollNumber role')
-      .sort({ percentage: -1, submittedAt: 1 });
+      .sort({ percentage: -1, obtainedMarks: -1, timeTaken: 1, submittedAt: 1 });
 
-    const rankedResults = results.map((result, index) => ({
+    const rankedResults = [...results].sort(compareResultsForRank).map((result, index) => ({
       ...buildResult(result),
       rank: index + 1,
     }));
@@ -194,11 +207,11 @@ router.get('/detailed/:resultId', requireAuth, async (req, res) => {
     const examResults = await Result.find({
       exam: result.exam._id,
     })
-      .select('_id percentage submittedAt')
-      .sort({ percentage: -1, submittedAt: 1 });
+      .select('_id percentage obtainedMarks timeTaken submittedAt createdAt')
+      .sort({ percentage: -1, obtainedMarks: -1, timeTaken: 1, submittedAt: 1 });
 
     const rank =
-      examResults.findIndex(
+      [...examResults].sort(compareResultsForRank).findIndex(
         (item) => String(item._id) === String(result._id)
       ) + 1;
 

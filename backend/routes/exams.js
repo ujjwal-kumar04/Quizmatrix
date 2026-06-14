@@ -32,6 +32,7 @@ const {
   isPublishedExam,
   canTeacherManageExam,
   canStudentAccessExam,
+  getStudentQuestionSet,
 } = require('../utils/examHelpers');
 
 const buildExamResponse = (exam) => ({
@@ -640,6 +641,27 @@ router.get('/:examId/questions', requireAuth, async (req, res) => {
       return res.status(403).json({ message: 'You are not allowed to access this exam' });
     }
 
+    // For students, return a deterministic per-student randomized set
+    if (req.user.role !== 'teacher') {
+      const setData = getStudentQuestionSet(exam, req.user._id);
+      return res.json({
+        _id: exam._id,
+        title: exam.title,
+        subject: exam.subject,
+        description: exam.description,
+        instructions: exam.instructions || '',
+        duration: exam.duration,
+        passingMarks: exam.passingMarks || 0,
+        startTime: exam.startTime,
+        endTime: exam.endTime,
+        examKey: exam.examKey,
+        totalMarks: exam.totalMarks,
+        questions: setData.questions,
+        setNumber: setData.setNumber,
+      });
+    }
+
+    // Teacher view: include correctness flags and original option order info
     const questions = exam.questions.map((question) => ({
       _id: question._id,
       type: question.type || 'single_correct',
@@ -650,8 +672,7 @@ router.get('/:examId/questions', requireAuth, async (req, res) => {
       options: question.options.map((option) => ({
         text: option.text,
         originalIndex: option.originalIndex,
-        // include correctness when teacher is requesting (owner)
-        ...(req.user.role === 'teacher' ? { isCorrect: Boolean(option.isCorrect) } : {}),
+        isCorrect: Boolean(option.isCorrect),
       })),
     }));
 
@@ -734,7 +755,11 @@ router.post('/:examId/assign', requireAuth, async (req, res) => {
     const selectedCollege = String(req.body?.college || '').trim();
     const selectedBranch = String(req.body?.branch || '').trim();
     const selectedSemester = String(req.body?.semester || '').trim();
-    const selectedSection = String(req.body?.section || '').trim();
+    const selectedSections = Array.isArray(req.body?.sections)
+      ? req.body.sections.map((section) => String(section || '').trim()).filter(Boolean)
+      : String(req.body?.section || '').trim()
+        ? [String(req.body.section).trim()]
+        : [];
 
     if (requestedIds.length === 0) {
       return res.status(400).json({ message: 'At least one valid student ID is required' });
@@ -754,11 +779,11 @@ router.post('/:examId/assign', requireAuth, async (req, res) => {
     if (selectedSemester) {
       studentQuery.semester = new RegExp(`^${selectedSemester}$`, 'i');
     }
-    if (selectedSection) {
-      studentQuery.$or = [
-        { section: new RegExp(`^${selectedSection}$`, 'i') },
-        { className: new RegExp(`^${selectedSection}$`, 'i') },
-      ];
+    if (selectedSections.length > 0) {
+      studentQuery.$or = selectedSections.flatMap((section) => ([
+        { section: new RegExp(`^${section}$`, 'i') },
+        { className: new RegExp(`^${section}$`, 'i') },
+      ]));
     }
 
     const allowedStudents = await User.find(studentQuery).select('_id');
@@ -777,8 +802,8 @@ router.post('/:examId/assign', requireAuth, async (req, res) => {
     if (selectedBranch) {
       exam.allowedBranches = [selectedBranch];
     }
-    if (selectedSection) {
-      exam.allowedSections = [selectedSection];
+    if (selectedSections.length > 0) {
+      exam.allowedSections = Array.from(new Set([...(exam.allowedSections || []).map((value) => String(value)), ...selectedSections]));
     }
 
     await exam.save();

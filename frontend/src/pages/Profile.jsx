@@ -26,6 +26,7 @@ const Profile = () => {
     department: '',
     rollNumber: '',
     class: '',
+    section: '',
     semester: '',
     country: '',
     state: '',
@@ -44,6 +45,7 @@ const Profile = () => {
         department: user.department || '',
         rollNumber: user.rollNumber || '',
         class: user.class || '',
+        section: user.section || user.className || '',
         semester: user.semester || '',
         country: user.country || '',
         state: user.state || '',
@@ -123,6 +125,7 @@ const Profile = () => {
     if (user.role === 'student') {
       profileData.rollNumber = formData.rollNumber;
       profileData.class = formData.class;
+      profileData.section = formData.section;
       profileData.semester = formData.semester;
     }
     const success = await updateProfile(profileData);
@@ -543,6 +546,16 @@ const Profile = () => {
                       className="w-full px-3 py-2 border border-gray-300 dark:border-dark-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-dark-800 dark:text-white"
                     />
                   </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Section</label>
+                      <input
+                        type="text"
+                        name="section"
+                        value={formData.section}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-dark-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-dark-800 dark:text-white"
+                      />
+                    </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Semester</label>
                     <input

@@ -13,6 +13,9 @@ const Drafts = () => {
   const [filterOptions, setFilterOptions] = useState({ colleges: [], branches: [], semesters: [], sections: [] });
   const [students, setStudents] = useState([]);
   const [selectedStudentIds, setSelectedStudentIds] = useState([]);
+  const [selectedSections, setSelectedSections] = useState([]);
+  const [assignmentComplete, setAssignmentComplete] = useState(false);
+  const [sectionDropdownOpen, setSectionDropdownOpen] = useState(false);
   const [assignLoading, setAssignLoading] = useState(false);
   const [studentsLoading, setStudentsLoading] = useState(false);
 
@@ -45,14 +48,17 @@ const Drafts = () => {
     const assignedCount = Array.isArray(draft?.allowedStudents) ? draft.allowedStudents.length : 0;
     if (assignedCount === 0) {
       toast.error('Please assign at least one student before publishing');
-      return;
+      return false;
     }
 
     try {
       const res = await api.post(`/exams/${id}/publish`);
       toast.success(res.data.message || 'Published');
       fetchDrafts();
+      return true;
     } catch (err) { toast.error(err.response?.data?.message || 'Failed to publish'); }
+
+    return false;
   };
 
   const fetchStudentFilters = async (college = '', branch = '', semester = '') => {
@@ -105,6 +111,7 @@ const Drafts = () => {
 
   const openAssign = async (draft) => {
     setAssigningDraft(draft);
+    setAssignmentComplete(false);
 
     const initialCollege = Array.isArray(draft.allowedColleges) && draft.allowedColleges[0] ? draft.allowedColleges[0] : '';
     const initialBranch = Array.isArray(draft.allowedBranches) && draft.allowedBranches[0] ? draft.allowedBranches[0] : '';
@@ -118,6 +125,7 @@ const Drafts = () => {
 
     setStudentFilters(nextFilters);
     setSelectedStudentIds([]);
+    setSelectedSections(Array.isArray(draft.allowedSections) ? draft.allowedSections : []);
 
     await fetchStudentFilters(nextFilters.college, nextFilters.branch, nextFilters.semester);
     await fetchStudents(nextFilters);
@@ -127,6 +135,9 @@ const Drafts = () => {
     setAssigningDraft(null);
     setStudents([]);
     setSelectedStudentIds([]);
+    setSelectedSections([]);
+    setAssignmentComplete(false);
+    setSectionDropdownOpen(false);
     setStudentFilters({ college: '', branch: '', semester: '', section: '' });
   };
 
@@ -157,6 +168,14 @@ const Drafts = () => {
     ));
   };
 
+  const toggleSectionSelection = (section) => {
+    setSelectedSections((prev) => (
+      prev.includes(section)
+        ? prev.filter((item) => item !== section)
+        : [...prev, section]
+    ));
+  };
+
   const handleSelectAllStudents = () => {
     if (students.length === 0) return;
     setSelectedStudentIds(students.map((student) => student._id));
@@ -169,13 +188,18 @@ const Drafts = () => {
   const assignStudents = async () => {
     if (!assigningDraft) return;
 
-    if (!studentFilters.college || !studentFilters.branch || !studentFilters.semester || !studentFilters.section) {
-      toast.error('Please select college, stream, semester and section');
+    if (!studentFilters.college || !studentFilters.branch || !studentFilters.semester) {
+      toast.error('Please select college, stream and semester');
       return;
     }
 
     if (selectedStudentIds.length === 0) {
       toast.error('Please select at least one student');
+      return;
+    }
+
+    if (selectedSections.length === 0) {
+      toast.error('Please select at least one section');
       return;
     }
 
@@ -185,13 +209,17 @@ const Drafts = () => {
         college: studentFilters.college,
         branch: studentFilters.branch,
         semester: studentFilters.semester,
-        section: studentFilters.section,
+        sections: selectedSections,
         studentIds: selectedStudentIds,
       });
 
       toast.success(res.data?.message || 'Students assigned successfully');
-      await fetchDrafts();
-      closeAssign();
+      const updatedExam = res.data?.exam || assigningDraft;
+      setDrafts((prev) => prev.map((item) => (item._id === updatedExam._id ? updatedExam : item)));
+      setAssigningDraft(updatedExam);
+      // keep selectedStudentIds so teacher can review selections and immediately publish
+      // setSelectedStudentIds([]);
+      setAssignmentComplete(true);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to assign students');
     } finally {
@@ -209,6 +237,10 @@ const Drafts = () => {
   };
 
   if (loading) return <div className="p-4 md:p-6 text-sm">Loading drafts...</div>;
+
+  const visibleStudents = selectedSections.length > 0
+    ? students.filter((student) => selectedSections.includes(String(student.section || student.className || '').trim()))
+    : students;
 
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto w-full">
@@ -295,24 +327,50 @@ const Drafts = () => {
                   </select>
                 </div>
 
-                <div>
-                  <label className="mb-1 block text-xs font-semibold text-gray-700 dark:text-gray-300">Section</label>
-                  <select
-                    value={studentFilters.section}
-                    onChange={(e) => handleFilterChange('section', e.target.value)}
-                    className="w-full rounded border border-gray-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+                <div className="sm:col-span-2 md:col-span-4 relative">
+                  <label className="mb-1 block text-xs font-semibold text-gray-700 dark:text-gray-300">Sections (multiple)</label>
+                  <button
+                    type="button"
+                    onClick={() => setSectionDropdownOpen((prev) => !prev)}
+                    className="w-full flex items-center justify-between rounded border border-gray-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-slate-700"
                   >
-                    <option value="">Select section</option>
-                    {filterOptions.sections.map((section) => (
-                      <option key={section} value={section}>{section}</option>
-                    ))}
-                  </select>
+                    <span>
+                      {selectedSections.length > 0
+                        ? `${selectedSections.length} section${selectedSections.length > 1 ? 's' : ''} selected`
+                        : 'Select one or more sections'}
+                    </span>
+                    <span className="text-gray-500">▾</span>
+                  </button>
+
+                  {sectionDropdownOpen && (
+                    <div className="absolute z-20 mt-2 w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl max-h-60 overflow-y-auto">
+                      <div className="p-2 flex items-center justify-between border-b border-gray-100 dark:border-slate-800">
+                        <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">Choose sections</span>
+                        <button type="button" onClick={() => setSectionDropdownOpen(false)} className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">Close</button>
+                      </div>
+                      <div className="p-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {filterOptions.sections.length === 0 ? (
+                          <div className="text-xs text-gray-500 dark:text-gray-400 p-2">No sections available.</div>
+                        ) : filterOptions.sections.map((section) => (
+                          <label key={section} className="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-slate-700 px-3 py-2 text-xs text-gray-800 dark:text-gray-100 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800">
+                            <input
+                              type="checkbox"
+                              checked={selectedSections.includes(section)}
+                              onChange={() => toggleSectionSelection(section)}
+                              className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                            />
+                            <span>{section}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 border-t dark:border-slate-800 pt-3">
                 <div className="text-xs text-gray-600 dark:text-gray-400">
-                  Select multiple students (same college, stream, semester, section):
+                  Select multiple students from the selected sections:
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <button type="button" onClick={handleSelectAllStudents} className="flex-1 sm:flex-initial text-center rounded bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 transition-colors">Select All</button>
@@ -325,11 +383,11 @@ const Drafts = () => {
                   <div className="p-3 text-sm text-gray-500 text-center">Loading students...</div>
                 ) : !(studentFilters.college && studentFilters.branch && studentFilters.semester) ? (
                   <div className="p-3 text-sm text-gray-500 text-center">Select college, stream and semester to load students.</div>
-                ) : students.length === 0 ? (
+                ) : visibleStudents.length === 0 ? (
                   <div className="p-3 text-sm text-gray-500 text-center">No students found for selected filters.</div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {students.map((student) => (
+                    {visibleStudents.map((student) => (
                       <label key={student._id} className="flex items-center justify-between rounded border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 cursor-pointer select-none hover:bg-gray-50 dark:hover:bg-slate-850 transition-colors">
                         <div className="pr-2 min-w-0 flex-1">
                           <div className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">{student.name}</div>
@@ -349,14 +407,37 @@ const Drafts = () => {
             </div>
 
             <div className="mt-4 pt-3 flex items-center justify-between border-t border-gray-100 dark:border-slate-800 shrink-0">
-              <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">Selected: <span className="text-indigo-600 dark:text-indigo-400">{selectedStudentIds.length}</span></div>
-              <button
-                onClick={assignStudents}
-                disabled={assignLoading}
-                className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors shadow-xs"
-              >
-                {assignLoading ? 'Assigning...' : 'Assign Students'}
-              </button>
+              <div className="flex flex-col gap-2">
+                <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">Selected: <span className="text-indigo-600 dark:text-indigo-400">{selectedStudentIds.length}</span></div>
+                {(assignmentComplete || assigningDraft?.allowedStudents?.length > 0) && (
+                  <div className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                    Students assigned. Publish now from here.
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {(assignmentComplete || assigningDraft?.allowedStudents?.length > 0) && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const published = await publish(assigningDraft._id);
+                      if (published) closeAssign();
+                    }}
+                    className="rounded bg-yellow-500 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-600 transition-colors shadow-xs"
+                  >
+                    Publish Now
+                  </button>
+                )}
+                {!assignmentComplete && (
+                  <button
+                    onClick={assignStudents}
+                    disabled={assignLoading}
+                    className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors shadow-xs"
+                  >
+                    {assignLoading ? 'Assigning...' : 'Assign Students'}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
