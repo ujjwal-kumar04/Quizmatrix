@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link,useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { Helmet } from "react-helmet-async";
 import {
   Instagram,
   Facebook,
@@ -192,6 +193,92 @@ function Navbar({ page, setPage }) {
 
   return (
     <>
+  
+  <Helmet>
+    <title>
+      QuizMatrix | AI-Powered Exam Management & Placement Preparation Platform
+    </title>
+
+    <meta
+      name="description"
+      content="QuizMatrix is a comprehensive AI-powered EdTech and placement preparation platform that helps students and educators with online exams, AI mock interviews, performance analytics, study materials, previous year question papers, aptitude practice, DSA preparation, and interview readiness."
+    />
+
+    <meta
+      name="keywords"
+      content="
+      QuizMatrix,
+      AI Mock Interview,
+      Placement Preparation Platform,
+      Online Quiz Platform,
+      Exam Management System,
+      MCQ Practice Website,
+      AI Interview Feedback,
+      Interview Readiness Platform,
+      Student Performance Analytics,
+      Previous Year Question Papers,
+      Study Materials PDF,
+      Aptitude Questions,
+      Logical Reasoning Practice,
+      Verbal Ability Preparation,
+      DSA Preparation,
+      Educational Technology Platform,
+      B.Tech Placement Preparation,
+      AI Powered EdTech Platform,
+      Online Assessment Platform,
+      College Exam Portal,
+      Competitive Exam Quiz,
+      JavaScript Quiz,
+      Python Quiz,
+      Live Testing Platform,
+      Career Growth Platform
+      "
+    />
+
+    <meta name="robots" content="index, follow" />
+
+    <meta
+      property="og:title"
+      content="QuizMatrix - AI-Powered Exam Management & Interview Readiness Platform"
+    />
+
+    <meta
+      property="og:description"
+      content="Prepare for exams, placements, and interviews with AI-powered analytics, mock interviews, aptitude practice, and study materials."
+    />
+
+    <meta property="og:type" content="website" />
+
+    <meta
+      property="og:url"
+      content="https://quizmatrix.vercel.app/"
+    />
+
+    <meta property="og:site_name" content="QuizMatrix" />
+
+    <meta
+      name="twitter:card"
+      content="summary_large_image"
+    />
+
+    <meta
+      name="twitter:title"
+      content="QuizMatrix - AI Powered EdTech Platform"
+    />
+
+    <meta
+      name="twitter:description"
+      content="AI-powered exam management, placement preparation and interview readiness platform."
+    />
+
+    <link
+      rel="canonical"
+      href="https://quizmatrix.vercel.app/"
+    />
+  </Helmet>
+
+ 
+
       <style>{GLOBAL_CSS}</style>
       <button
         onClick={toggleDarkMode}
@@ -327,17 +414,7 @@ function Navbar({ page, setPage }) {
 }
 
 /* ─── STAT CARD (own component so hook is at top level) ──── */
-function StatCard({ stat }) {
-  const [ref, display] = useCountUp(stat.value);
-  const { darkMode } = useTheme();
-  return (
-    <div ref={ref} style={{ textAlign: "center" }}>
-      <div style={{ fontSize: "1.9rem", fontWeight: 800, color: darkMode ? "#818cf8" : "#4338ca", letterSpacing: "-0.04em", lineHeight: 1 }}>{display}</div>
-      <div style={{ fontSize: "0.78rem", color: darkMode ? "#64748b" : "#94a3b8", marginTop: 3, fontWeight: 500 }}>{stat.label}</div>
-      <div style={{ fontSize: "0.7rem", color: "#22c55e", marginTop: 2 }}>↑ {stat.trend}</div>
-    </div>
-  );
-}
+
 
 /* ─── HERO ───────────────────────────────────────────────── */
 function Hero({ setPage }) {
@@ -359,7 +436,7 @@ function Hero({ setPage }) {
         </h1>
 
         <p style={{ color: darkMode ? '#9aa6b8' : '#64748b', fontSize: "1.1rem", lineHeight: 1.75, maxWidth: 560, margin: "0 auto 2.5rem", animation: "fadeUp 0.7s ease 0.2s both" }}>
-          The ultimate platform for online MCQ quizzes, timer-based exams, and instant results. Built for students, designed for teachers.
+         The ultimate AI-powered platform for online exams, mock interviews, aptitude preparation, DSA practice, previous year papers, and performance analytics. Built for students and educators.
         </p>
 
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", animation: "fadeUp 0.7s ease 0.3s both" }}>
