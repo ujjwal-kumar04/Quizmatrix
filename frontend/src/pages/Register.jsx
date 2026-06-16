@@ -478,7 +478,7 @@ const Register = () => {
                 className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg text-sm sm:text-base bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
                   errors.password ? 'border-red-500' : 'border-gray-300 dark:border-slate-600'
                 }`}
-                placeholder="Create a password (min 6 characters)"
+                placeholder="Create a password (min 8 characters)"
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>
